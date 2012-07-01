@@ -1,4 +1,0 @@
-
-module ConsoleWindow
-  require 'console_window/window'
-end

@@ -115,4 +115,20 @@ describe ConsoleWindow::Window do
 
     its(:as_text) { should == %w[*-* |b| *-*].join("\n") }
   end
+
+  describe "#print_rect" do
+    before do
+      subject.lines << "###"
+      subject.lines << "###"
+      subject.lines << "###"
+
+      subject.position.x = 0
+      subject.position.y = 0
+      subject.print_rect "@@\n" +
+                         "@@"
+    end
+
+    its(:as_text) { should == %w[@@# @@# ###].join("\n") }
+    its(:lines) { should == %w[@@# @@# ###] }
+  end
 end

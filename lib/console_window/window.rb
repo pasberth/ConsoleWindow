@@ -14,6 +14,7 @@ module ConsoleWindow
     attr_accessor :lines
     attr_accessor :width
     attr_accessor :height
+    attr_accessor :position
     attr_accessor :scroll
 
     def width
@@ -52,11 +53,23 @@ module ConsoleWindow
       displayed_lines.join "\n"
     end
 
+    # ====================
+    # Printing Methods
+    # ====================
+    
+    def print_rect text
+      text.each_line.each_with_index do |str, i|
+        str.chomp!
+        (self.lines[position.y + i] ||= '')[0 .. str.length-1] = str
+      end
+    end
+
     def default_attributes
       {
         :lines => Lines.new([]),
         # :width => max_width,
         # :height => mac_height,
+        :position => Position.new(0, 0),
         :scroll => Scroll.new(0, 0)
       }
     end
@@ -64,4 +77,5 @@ module ConsoleWindow
 
   Window::Lines = Array
   Window::Scroll = Struct.new :x, :y
+  Window::Position = Struct.new :x, :y
 end

@@ -19,6 +19,7 @@ module ConsoleWindow
     end
 
     def paint
+      curses_window.clear
       curses_window.setpos 0, 0
       curses_window.addstr as_displayed_text
       curses_window.refresh

@@ -4,7 +4,7 @@ require 'console_window'
 
 begin
   Curses.init_screen
-  window = ConsoleWindow::Window.new(:curses_window => Curses)
+  window = ConsoleWindow::Window.new(:curses_window => Curses.stdscr)
   window.lines << "hello world!"
   window.paint
   Curses.getch

@@ -12,10 +12,30 @@ module ConsoleWindow
     # ====================
 
     attr_accessor :lines
+    attr_accessor :width
+    attr_accessor :height
     attr_accessor :scroll
 
+    def width
+      @width ||= max_width
+    end
+
+    def height
+      @height ||= max_height
+    end
+
+    def max_width
+      raise NotImplementedError
+    end
+
+    def max_height
+      raise NotImplementedError
+    end
+
     def displayed_lines
-      lines[scroll.y .. -1].map { |line| line[scroll.x .. -1] }
+      h = height ? height - 1 : -1
+      w = width ? width - 1 : -1
+      lines[scroll.y .. h].map { |line| line[scroll.x .. w] }
     end
 
     # ====================
@@ -35,6 +55,8 @@ module ConsoleWindow
     def default_attributes
       {
         :lines => Lines.new([]),
+        # :width => max_width,
+        # :height => mac_height,
         :scroll => Scroll.new(0, 0)
       }
     end

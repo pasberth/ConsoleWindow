@@ -159,5 +159,19 @@ describe ConsoleWindow::Window do
       its(:as_text) { should == %w[### @@# @@#].join("\n") }
       its(:lines) { should == %w[### @@# @@#] }
     end
+    context do
+      before do
+        subject.position.x = 3
+        subject.position.y = 3
+        subject.print_rect "@@\n" +
+                           "@@"
+      end
+
+      its(:as_text) { should == [ "###",
+                                  "###",
+                                  "###",
+                                  "   @@",
+                                  "   @@" ].join("\n") }
+    end
   end
 end

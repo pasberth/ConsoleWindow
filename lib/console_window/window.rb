@@ -15,6 +15,7 @@ module ConsoleWindow
     attr_accessor :width
     attr_accessor :height
     attr_accessor :position
+    attr_accessor :cursor
     attr_accessor :scroll
 
     def width
@@ -70,12 +71,14 @@ module ConsoleWindow
         # :width => max_width,
         # :height => mac_height,
         :position => Position.new(0, 0),
+        :cursor => Cursor.new(0, 0),
         :scroll => Scroll.new(0, 0)
       }
     end
   end
 
   Window::Lines = Array
-  Window::Scroll = Struct.new :x, :y
   Window::Position = Struct.new :x, :y
+  Window::Cursor = Struct.new :x, :y
+  Window::Scroll = Struct.new :x, :y
 end

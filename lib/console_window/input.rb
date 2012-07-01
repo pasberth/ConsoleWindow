@@ -7,7 +7,7 @@ module ConsoleWindow
     # NOTE: this function is Unicode Only
     def gets sep = $/
       bytes = nil
-      curx, cury = curses_window.curx, curses_window.cury
+      curx, cury = cursor.x, cursor.y
       ipt = []
       buf = []
 

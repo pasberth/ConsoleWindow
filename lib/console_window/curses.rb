@@ -22,6 +22,7 @@ module ConsoleWindow
       curses_window.clear
       curses_window.setpos 0, 0
       curses_window.addstr as_displayed_text
+      curses_window.setpos cursor.y, cursor.x
       curses_window.refresh
       true
     end

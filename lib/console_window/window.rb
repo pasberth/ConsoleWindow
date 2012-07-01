@@ -60,7 +60,7 @@ module ConsoleWindow
     def print_rect text
       text.each_line.each_with_index do |str, i|
         str.chomp!
-        (self.lines[position.y + i] ||= '')[0 .. str.length-1] = str
+        (self.lines[position.y + i] ||= '')[position.x .. (str.length + position.x - 1)] = str
       end
     end
 

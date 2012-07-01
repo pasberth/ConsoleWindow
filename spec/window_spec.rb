@@ -117,18 +117,47 @@ describe ConsoleWindow::Window do
   end
 
   describe "#print_rect" do
+
     before do
       subject.lines << "###"
       subject.lines << "###"
       subject.lines << "###"
-
-      subject.position.x = 0
-      subject.position.y = 0
-      subject.print_rect "@@\n" +
-                         "@@"
     end
+    
+    context do
+      before do
+        subject.position.x = 0
+        subject.position.y = 0
+        subject.print_rect "@@\n" +
+                           "@@"
+      end
 
-    its(:as_text) { should == %w[@@# @@# ###].join("\n") }
-    its(:lines) { should == %w[@@# @@# ###] }
+      its(:as_text) { should == %w[@@# @@# ###].join("\n") }
+      its(:lines) { should == %w[@@# @@# ###] }
+    end
+    
+    context do
+      before do
+        subject.position.x = 1
+        subject.position.y = 0
+        subject.print_rect "@@\n" +
+                           "@@"
+      end
+
+      its(:as_text) { should == %w[#@@ #@@ ###].join("\n") }
+      its(:lines) { should == %w[#@@ #@@ ###] }
+    end
+    
+    context do
+      before do
+        subject.position.x = 0
+        subject.position.y = 1
+        subject.print_rect "@@\n" +
+                           "@@"
+      end
+
+      its(:as_text) { should == %w[### @@# @@#].join("\n") }
+      its(:lines) { should == %w[### @@# @@#] }
+    end
   end
 end

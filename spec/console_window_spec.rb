@@ -78,4 +78,24 @@ describe ConsoleWindow::Window do
 
     its(:as_displayed_text) { should == %w[_1 _2].join("\n") }
   end
+
+  context do
+
+    before do
+      subject.lines << "first line"
+      subject.lines << "second line"
+      subject.lines << "third line"
+      # will be displayed:
+      #                 ###########
+      #                 ###ond l###
+      #                 ###rd li###
+      #                 ###~~~~~###
+      subject.scroll.x = 3
+      subject.scroll.y = 1
+      subject.width = 5
+      subject.height = 2
+    end
+
+    its(:as_displayed_text) { should == ["ond l", "rd li"].join("\n") }
+  end
 end

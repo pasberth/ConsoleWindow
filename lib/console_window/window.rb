@@ -33,8 +33,8 @@ module ConsoleWindow
     end
 
     def displayed_lines
-      h = height ? height - 1 : -1
-      w = width ? width - 1 : -1
+      h = height ? (height + scroll.y - 1) : -1
+      w = width ? (width + scroll.x - 1) : -1
       lines[scroll.y .. h].map { |line| line[scroll.x .. w] }
     end
 

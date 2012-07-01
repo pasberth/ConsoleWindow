@@ -16,15 +16,21 @@ end
 
 describe ConsoleWindow::Window do
 
-  subject { described_class.new(:curses_window => CursesWindowMock.new) }
+  let(:window) { described_class.new(:curses_window => CursesWindowMock.new) }
+  subject { window }
 
-  its(:lines) { should == [] }
-  its(:as_text) { should == "" }
-  its(:as_displayed_text) { should == "" }
-  its(:as_full_text) { should == "" }
+  describe "the default value of each attritbes." do
 
-  it { subject.width.should == subject.max_width }
-  it { subject.height.should == subject.max_height }
+    its(:lines) { should == [] }
+    its(:as_text) { should == "" }
+    its(:as_displayed_text) { should == "" }
+    its(:as_full_text) { should == "" }
+
+    its('scroll.x') { should == 0 }
+    its('scroll.y') { should == 0 }
+    its(:width) { should == window.max_width }
+    its(:height) { should == window.max_height }
+  end
 
   context do
 

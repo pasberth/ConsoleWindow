@@ -104,4 +104,15 @@ describe ConsoleWindow::Window do
 
     its(:as_displayed_text) { should == ["ond l", "rd li"].join("\n") }
   end
+
+  describe "replace char" do
+    before do
+      subject.lines << '*-*'
+      subject.lines << '|a|'
+      subject.lines << '*-*'
+      subject.lines[1][1] = 'b'
+    end
+
+    its(:as_text) { should == %w[*-* |b| *-*].join("\n") }
+  end
 end

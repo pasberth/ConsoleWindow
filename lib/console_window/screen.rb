@@ -53,9 +53,12 @@ module ConsoleWindow
       buf = []
 
       while ipt.last != sep
-        paint
-        curses_window.setpos cury, curx
-        curses_window.addstr ipt.join
+
+        if buf.empty?
+          paint
+          curses_window.setpos cury, curx
+          curses_window.addstr ipt.join
+        end
 
         buf << ( case c = curses_window.getch
                  when Integer then c

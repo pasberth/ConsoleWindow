@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 module ConsoleWindow
 
@@ -53,10 +54,29 @@ module ConsoleWindow
     end
 
     def gets sep = $/
+      # Curses.noecho
       ret = [].tap do |ipt|
         begin
-          ipt << getc
-        end while ipt.last and ipt.last != sep
+          case c = getc
+          when 127.chr  # DEL
+            delc = ipt.pop or next
+            case delc.bytes.count
+            when 1
+              @curses_window.setpos(@curses_window.cury, @curses_window.curx - 1)
+              @curses_window.delch
+            when 2..4
+              2.times do  # 多バイト文字。とりあえず決めうちでカーソル2つ分削除。
+                @curses_window.setpos(@curses_window.cury, @curses_window.curx - 1)
+                @curses_window.delch
+              end
+            else
+              abort
+            end
+          else
+            c and @curses_window.addstr(c) # echo character. (if Curses.noecho called.)
+            ipt << c
+          end
+        end while ipt.empty? or ipt.last and ipt.last != sep
       end
 
       ret.none? ? nil : ret.join

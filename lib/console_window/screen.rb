@@ -54,28 +54,13 @@ module ConsoleWindow
     # NOTE: this function is Unicode Only
 
     def getc
+      curses_window.setpos cursor.y, cursor.x
       curses_io.getc
     end
 
     def gets sep = $/
-      curx, cury = cursor.x, cursor.y
-      [].tap do |ipt|
-        while ipt.last != sep
-
-          paint
-          curses_window.setpos cury, curx
-          curses_window.addstr ipt.join
-
-          case c = curses_io.getc
-          when nil
-            abort
-          when 127.chr # DEL
-            ipt.pop
-          else
-            ipt << c
-          end
-        end
-      end.join
+      curses_window.setpos cursor.y, cursor.x
+      curses_io.gets(sep)
     end
   end
 end

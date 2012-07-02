@@ -2,8 +2,8 @@
 $:.unshift File.dirname(__FILE__) + '/../lib'
 require 'console_window'
 
-begin
-  Curses.init_screen
+ConsoleWindow.start do
+
   screen = ConsoleWindow::Screen.new
   input_window = screen.create_sub_window(40, 1, 0, 0)
   display_window = screen.create_sub_window(40, 1, 0, 1)
@@ -21,6 +21,4 @@ begin
 
   screen.paint
   Curses.getch
-ensure
-  Curses.close_screen
 end

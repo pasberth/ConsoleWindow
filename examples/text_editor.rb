@@ -168,10 +168,7 @@ module TextEditor
   end
 end
 
-begin
-  Curses.init_screen
+ConsoleWindow.start do
   editor = TextEditor::Editor.new
   editor.activate
-ensure
-  Curses.close_screen
 end

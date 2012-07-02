@@ -12,37 +12,74 @@ module ConsoleWindow
     # ====================
 
     attr_accessor :lines
-    attr_accessor :x
-    attr_accessor :y
-    attr_accessor :width
-    attr_accessor :height
+
+    def location
+      @location or self.location = Location.new(self, 0, 0)
+    end
+
+    def location= l
+      @location = l.tap do |l|
+        l.window = self
+      end
+    end
+
+    [ :x,
+      :y,
+      :absolute_x,
+      :absolute_y
+    ].each do |a|
+      class_eval(<<-A)
+        def #{a}                # def x
+          location.#{a}         #   location.x
+        end                     # end
+
+        def #{a}= val           # def x= val
+          location.#{a} = val   #   location.x = val
+        end                     # end
+      A
+    end
+
+    attr_accessor :size
+
+    def size
+      @size ||= Size.new
+    end
+
+    [:width, :height].each do |a|
+      class_eval(<<-A)
+        def #{a}            # def width
+          size.#{a}         #   size.width
+        end                 # end
+
+        def #{a}= val       # def width= val
+          size.#{a} = val   #   size.width = val
+        end                 # end
+      A
+    end
+
     attr_accessor :position
     attr_accessor :cursor
     attr_accessor :scroll
+
+
     attr_accessor :owner
 
     def screen
       owner.screen
     end
 
-    def absolute_x
-      owner.absolute_x + x
-    end
-
-    def absolute_y
-      owner.absolute_y + y
-    end
-
     def default_attributes
       {
         :lines => Lines.new([]),
+        :location => Location.new(self, 0, 0),
+        :size => Size.new(nil, nil),
         :x => 0,
         :y => 0,
         # :width => nil,  # required 
         # :height => nil, # required
-        :position => Position.new(0, 0),
-        :cursor => Cursor.new(0, 0),
-        :scroll => Scroll.new(0, 0),
+        :position => Position.new(self, 0, 0),
+        :cursor => Cursor.new(self, 0, 0),
+        :scroll => Scroll.new(self, 0, 0),
         # :owner => Screen.new # required
       }
     end
@@ -115,7 +152,49 @@ module ConsoleWindow
   end
 
   Window::Lines = Array
-  Window::Position = Struct.new :x, :y
-  Window::Cursor = Struct.new :x, :y
-  Window::Scroll = Struct.new :x, :y
+
+  class Window::WindowPoint < Struct.new(:window, :x, :y)
+
+    def absolute_x
+      window.owner ?
+        (super_point.absolute_x + x) :
+        x
+    end
+
+    def absolute_y
+      window.owner ?
+        (super_point.absolute_y + y) :
+        y
+    end
+  end
+
+  class Window::Location < Window::WindowPoint
+
+    def super_point
+      window.owner.location
+    end
+  end
+
+  Window::Size = Struct.new :width, :height
+
+  class Window::Position < Window::WindowPoint
+
+    def super_point
+      window.owner.position
+    end
+  end
+
+  class Window::Cursor < Window::WindowPoint
+
+    def super_point
+      window.owner.cursor
+    end
+  end
+
+  class Window::Scroll < Window::WindowPoint
+
+    def super_point
+      window.owner.scroll
+    end
+  end
 end

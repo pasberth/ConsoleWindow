@@ -12,10 +12,73 @@ describe ConsoleWindow::Window do
     its(:as_displayed_text) { should == "" }
     its(:as_full_text) { should == "" }
 
-    its('scroll.x') { should == 0 }
-    its('scroll.y') { should == 0 }
+    its(:x) { should == 0 }
+    its(:y) { should == 0 }
+    its('location.x') { should == 0 }
+    its('location.y') { should == 0 }
+    its('location.absolute_x') { should == 0 }
+    its('location.absolute_y') { should == 0 }
+
     its(:width) { should == 80 }
     its(:height) { should == 20 }
+    its('size.width') { should == 80 }
+    its('size.height') { should == 20 }
+
+    its('position.x') { should == 0 }
+    its('position.y') { should == 0 }
+    its('position.absolute_x') { should == 0 }
+    its('position.absolute_y') { should == 0 }
+
+    its('cursor.x') { should == 0 }
+    its('cursor.y') { should == 0 }
+    its('cursor.absolute_x') { should == 0 }
+    its('cursor.absolute_y') { should == 0 }
+
+    its('scroll.x') { should == 0 }
+    its('scroll.y') { should == 0 }
+    its('scroll.absolute_x') { should == 0 }
+    its('scroll.absolute_y') { should == 0 }
+
+
+    example do
+      subject.x = 5
+      subject.location.x.should == 5
+    end
+
+    example do
+      subject.location.x = 5
+      subject.x.should == 5
+    end
+
+    example do
+      subject.y = 5
+      subject.location.y.should == 5
+    end
+
+    example do
+      subject.location.y = 5
+      subject.y.should == 5
+    end
+
+    example do
+      subject.width = 40
+      subject.size.width.should == 40
+    end
+
+    example do
+      subject.size.width = 40
+      subject.width.should == 40
+    end
+
+    example do
+      subject.height = 10
+      subject.size.height.should == 10
+    end
+
+    example do
+      subject.size.height = 10
+      subject.size.height.should == 10
+    end
   end
 
   context do

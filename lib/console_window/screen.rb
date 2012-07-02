@@ -53,6 +53,10 @@ module ConsoleWindow
       buf = []
 
       while ipt.last != sep
+        paint
+        curses_window.setpos cury, curx
+        curses_window.addstr ipt.join
+
         buf << ( case c = curses_window.getch
                  when Integer then c
                  when String then c.bytes.first
@@ -94,10 +98,6 @@ module ConsoleWindow
         else
           abort
         end
-
-        paint
-        curses_window.setpos cury, curx
-        curses_window.addstr ipt.join
       end
 
       return ipt.join

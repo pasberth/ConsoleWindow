@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe ConsoleWindow::Window do
 
-  let(:window) { described_class.new(:curses_window => CursesWindowMock.new) }
+  let(:window) { described_class.new(width: 80, height: 20) }
   subject { window }
 
   describe "the default value of each attritbes." do
@@ -14,8 +14,8 @@ describe ConsoleWindow::Window do
 
     its('scroll.x') { should == 0 }
     its('scroll.y') { should == 0 }
-    its(:width) { should == window.max_width }
-    its(:height) { should == window.max_height }
+    its(:width) { should == 80 }
+    its(:height) { should == 20 }
   end
 
   context do

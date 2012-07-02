@@ -8,7 +8,6 @@ describe ConsoleWindow::Container do
 
   describe "add windows" do
 
-
     before do
 
       @main_window = ConsoleWindow::Window.new(:width => 80, :height => 18)
@@ -46,5 +45,34 @@ describe ConsoleWindow::Container do
 Information line                                                                
 Command line                                                                    
                               A
+
+    describe "change size" do
+      before do
+        subject.width = 20
+        subject.height = 5
+      end
+
+      its(:as_displayed_text) { should == <<-A.chomp }
+####################
+####################
+####################
+####################
+####################
+A
+    end
+
+    describe "scroll down" do
+      before do
+        subject.scroll.y = 15
+      end
+      
+      its(:as_displayed_text) { should == <<-A.chomp }
+################################################################################
+################################################################################
+################################################################################
+Information line                                                                
+Command line                                                                    
+A
+    end
   end
 end

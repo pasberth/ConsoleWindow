@@ -29,11 +29,11 @@ module ConsoleWindow
     alias absolute_x x
     alias absolute_y y
 
-    def max_width
+    def width
       curses_window ? curses_window.maxx : nil
     end
 
-    def max_height
+    def height
       curses_window ? curses_window.maxy : nil
     end
 
@@ -52,6 +52,11 @@ module ConsoleWindow
     # ====================
 
     # NOTE: this function is Unicode Only
+
+    def getc
+      curses_io.getc
+    end
+
     def gets sep = $/
       curx, cury = cursor.x, cursor.y
       [].tap do |ipt|

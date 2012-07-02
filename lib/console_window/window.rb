@@ -144,6 +144,12 @@ module ConsoleWindow
     # Input
     # ====================
 
+    def getc
+      screen.cursor.x = cursor.absolute_x
+      screen.cursor.y = cursor.absolute_y
+      screen.getc
+    end
+
     def gets
       screen.cursor.x = cursor.absolute_x
       screen.cursor.y = cursor.absolute_y

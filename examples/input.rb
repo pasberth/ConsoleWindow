@@ -4,7 +4,7 @@ require 'console_window'
 
 begin
   Curses.init_screen
-  window = ConsoleWindow::Window.new(:curses_window => Curses.stdscr)
+  window = ConsoleWindow::Screen.new
   msg = "will echo. input plz: "
   window.lines << msg
   window.cursor.x = msg.length

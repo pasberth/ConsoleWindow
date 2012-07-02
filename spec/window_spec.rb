@@ -1,18 +1,4 @@
-require 'console_window'
-
-class CursesWindowMock
-
-  MAXX = 80
-  MAXY = 20
-
-  def maxx
-    MAXX
-  end
-
-  def maxy
-    MAXY
-  end
-end
+require 'spec_helper'
 
 describe ConsoleWindow::Window do
 

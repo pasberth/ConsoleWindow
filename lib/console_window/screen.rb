@@ -15,6 +15,13 @@ module ConsoleWindow
 
     attr_accessor :curses_window
 
+    def screen
+      self
+    end
+
+    alias absolute_x x
+    alias absolute_y y
+
     def max_width
       curses_window ? curses_window.maxx : nil
     end

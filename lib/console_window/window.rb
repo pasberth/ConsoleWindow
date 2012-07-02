@@ -19,6 +19,33 @@ module ConsoleWindow
     attr_accessor :position
     attr_accessor :cursor
     attr_accessor :scroll
+    attr_accessor :owner
+
+    def screen
+      owner.screen
+    end
+
+    def absolute_x
+      owner.absolute_x + x
+    end
+
+    def absolute_y
+      owner.absolute_y + y
+    end
+
+    def default_attributes
+      {
+        :lines => Lines.new([]),
+        :x => 0,
+        :y => 0,
+        # :width => nil,  # required 
+        # :height => nil, # required
+        :position => Position.new(0, 0),
+        :cursor => Cursor.new(0, 0),
+        :scroll => Scroll.new(0, 0),
+        # :owner => Screen.new # required
+      }
+    end
 
     def displayed_lines
       h = height ? (height + scroll.y - 1) : -1
@@ -76,17 +103,14 @@ module ConsoleWindow
       true
     end
 
-    def default_attributes
-      {
-        :lines => Lines.new([]),
-        :x => 0,
-        :y => 0,
-        # :width => nil,  # required 
-        # :height => nil, # required
-        :position => Position.new(0, 0),
-        :cursor => Cursor.new(0, 0),
-        :scroll => Scroll.new(0, 0)
-      }
+    # ====================
+    # Input
+    # ====================
+
+    def gets
+      screen.cursor.x = absolute_x + cursor.x
+      screen.cursor.y = absolute_y + cursor.y
+      screen.gets
     end
   end
 

@@ -145,8 +145,8 @@ module ConsoleWindow
     # ====================
 
     def gets
-      screen.cursor.x = absolute_x + cursor.x
-      screen.cursor.y = absolute_y + cursor.y
+      screen.cursor.x = cursor.absolute_x
+      screen.cursor.y = cursor.absolute_y
       screen.gets
     end
   end
@@ -156,45 +156,27 @@ module ConsoleWindow
   class Window::WindowPoint < Struct.new(:window, :x, :y)
 
     def absolute_x
-      window.owner ?
-        (super_point.absolute_x + x) :
-        x
+      window.location.absolute_x + x
     end
 
     def absolute_y
-      window.owner ?
-        (super_point.absolute_y + y) :
-        y
+      window.location.absolute_y + y
     end
   end
 
   class Window::Location < Window::WindowPoint
 
-    def super_point
-      window.owner.location
+    def absolute_x
+      window.owner ? (window.owner.location.absolute_x + x) : x
+    end
+
+    def absolute_y
+      window.owner ? (window.owner.location.absolute_y + y) : y
     end
   end
 
   Window::Size = Struct.new :width, :height
-
-  class Window::Position < Window::WindowPoint
-
-    def super_point
-      window.owner.position
-    end
-  end
-
-  class Window::Cursor < Window::WindowPoint
-
-    def super_point
-      window.owner.cursor
-    end
-  end
-
-  class Window::Scroll < Window::WindowPoint
-
-    def super_point
-      window.owner.scroll
-    end
-  end
+  class Window::Position < Window::WindowPoint; end
+  class Window::Cursor < Window::WindowPoint; end
+  class Window::Scroll < Window::WindowPoint; end
 end

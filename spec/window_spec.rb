@@ -81,146 +81,191 @@ describe ConsoleWindow::Window do
     end
   end
 
-  context do
+  describe "To Text Methods" do
 
-    let(:expecting_lines) { ["first line", "next line"] }
+    shared_examples_for "general testing" do
 
-    before do
-      subject.lines << "first line"
-      subject.lines << "next line"
+      its(:as_text) { should == expecting_full_text }
+      its(:as_full_text) { should == expecting_full_text }
+      its(:as_displayed_text) { should == expecting_displayed_text }
     end
 
-    its(:lines) { should == expecting_lines }
-    its(:as_text) { should == expecting_lines.join("\n") }
-    its(:as_full_text) { should == expecting_lines.join("\n") }
-    its(:as_displayed_text) { should == expecting_lines.join("\n") }
-  end
+    it_behaves_like "general testing" do
 
-  context do
-    before do
-      subject.lines << "$0"
-      subject.lines << "%1" # <- scroll.y = 1
-      subject.lines << "&2"
-      #                  ^ scroll.x = 1
-      subject.scroll.x = 1
-      subject.scroll.y = 1
+      let(:expecting_full_text) { <<-A.chomp }
+first line
+next line
+A
+      let(:expecting_displayed_text) { expecting_full_text }
+
+      before do
+        subject.lines << "first line"
+        subject.lines << "next line"
+      end
     end
 
-    its(:lines) { should == %w[$0 %1 &2] }
-    its(:as_text) { should == %w[$0 %1 &2].join("\n") }
-    its(:as_full_text) { should == %w[$0 %1 &2].join("\n") }
-    its(:as_displayed_text) { should == %w[1 2].join("\n") }
-  end
+    it_behaves_like "general testing" do
 
-  context do
-
-    before do
-      subject.lines << "hello world. this is a long string."
-      #                     ^ width = 5
-      subject.width = 5
+      let(:expecting_full_text) { <<-A.chomp }
+$0
+%1
+&2
+A
+      let(:expecting_displayed_text) { <<-A.chomp }
+1
+2
+A
+      before do
+        subject.lines << "$0"
+        subject.lines << "%1" # <- scroll.y = 1
+        subject.lines << "&2"
+        #                  ^ scroll.x = 1
+        subject.scroll.x = 1
+        subject.scroll.y = 1
+      end      
     end
 
-    its(:as_displayed_text) { should == "hello" }
-  end
+    it_behaves_like "general testing" do
+      let(:expecting_full_text) { "hello world. this is a long string." }
+      let(:expecting_displayed_text) { "hello" }
 
-  context do
-    before do
-      subject.lines << "_1"
-      subject.lines << "_2" # <- height = 2
-      subject.lines << "_3"
-      subject.height = 2
+      before do
+        subject.lines << "hello world. this is a long string."
+        #                     ^ width = 5
+        subject.width = 5
+      end
     end
 
-    its(:as_displayed_text) { should == %w[_1 _2].join("\n") }
-  end
-
-  context do
-
-    before do
-      subject.lines << "first line"
-      subject.lines << "second line"
-      subject.lines << "third line"
-      # will be displayed:
-      #                 ###########
-      #                 ###ond l###
-      #                 ###rd li###
-      #                 ###~~~~~###
-      subject.scroll.x = 3
-      subject.scroll.y = 1
-      subject.width = 5
-      subject.height = 2
+    it_behaves_like "general testing" do
+      let(:expecting_full_text) { <<-A.chomp }
+_1
+_2
+_3
+          A
+      let(:expecting_displayed_text) { <<-A.chomp }
+_1
+_2
+          A
+      before do
+        subject.lines << "_1"
+        subject.lines << "_2" # <- height = 2
+        subject.lines << "_3"
+        subject.height = 2
+      end
     end
 
-    its(:as_displayed_text) { should == ["ond l", "rd li"].join("\n") }
-  end
-
-  describe "replace char" do
-    before do
-      subject.lines << '*-*'
-      subject.lines << '|a|'
-      subject.lines << '*-*'
-      subject.lines[1][1] = 'b'
+    it_behaves_like "general testing" do
+      let(:expecting_full_text) { <<-A.chomp }
+first line
+second line
+third line
+A
+      let(:expecting_displayed_text) { <<-A.chomp }
+ond l
+rd li
+A
+      before do
+        subject.lines << "first line"
+        subject.lines << "second line"
+        subject.lines << "third line"
+        subject.scroll.x = 3
+        subject.scroll.y = 1
+        subject.width = 5
+        subject.height = 2
+      end
     end
 
-    its(:as_text) { should == %w[*-* |b| *-*].join("\n") }
-  end
+    it_behaves_like "general testing" do
+      let(:expecting_full_text) { <<-A.chomp }
+*-*
+|b|
+*-*
+A
+      let(:expecting_displayed_text) { expecting_full_text }
 
-  describe "#print_rect" do
-
-    before do
-      subject.lines << "###"
-      subject.lines << "###"
-      subject.lines << "###"
+      before do
+        subject.lines << '*-*'
+        subject.lines << '|a|'
+        subject.lines << '*-*'
+        subject.lines[1][1] = 'b'
+      end
     end
+
+    describe "#print_rect" do
+
+      before do
+        subject.lines << "###"
+        subject.lines << "###"
+        subject.lines << "###"
+      end
+      
+      it_behaves_like "general testing" do
+        let(:expecting_full_text) { <<-A.chomp }
+@@#
+@@#
+###
+A
+        let(:expecting_displayed_text) { expecting_full_text }
+
+        before do
+          subject.position.x = 0
+          subject.position.y = 0
+          subject.print_rect "@@\n" +
+                             "@@"
+        end
+      end
+      
+      it_behaves_like "general testing" do
+
+        let(:expecting_full_text) { <<-A.chomp }
+#\@@
+#\@@
+###
+A
+        let(:expecting_displayed_text) { expecting_full_text }
+
+        before do
+          subject.position.x = 1
+          subject.position.y = 0
+          subject.print_rect "@@\n" +
+                             "@@"
+        end
+      end
     
-    context do
-      before do
-        subject.position.x = 0
-        subject.position.y = 0
-        subject.print_rect "@@\n" +
-                           "@@"
+      it_behaves_like "general testing" do
+
+        let(:expecting_full_text) { <<-A.chomp }
+###
+@@#
+@@#
+A
+        let(:expecting_displayed_text) { expecting_full_text }
+        before do
+          subject.position.x = 0
+          subject.position.y = 1
+          subject.print_rect "@@\n" +
+                             "@@"
+        end
       end
 
-      its(:as_text) { should == %w[@@# @@# ###].join("\n") }
-      its(:lines) { should == %w[@@# @@# ###] }
-    end
-    
-    context do
-      before do
-        subject.position.x = 1
-        subject.position.y = 0
-        subject.print_rect "@@\n" +
-                           "@@"
-      end
+      it_behaves_like "general testing" do
+        
+        let(:expecting_full_text) { <<-A.chomp }
+###
+###
+###
+   @@
+   @@
+A
+        let(:expecting_displayed_text) { expecting_full_text }
 
-      its(:as_text) { should == %w[#@@ #@@ ###].join("\n") }
-      its(:lines) { should == %w[#@@ #@@ ###] }
-    end
-    
-    context do
-      before do
-        subject.position.x = 0
-        subject.position.y = 1
-        subject.print_rect "@@\n" +
-                           "@@"
+        before do
+          subject.position.x = 3
+          subject.position.y = 3
+          subject.print_rect "@@\n" +
+                             "@@"
+        end
       end
-
-      its(:as_text) { should == %w[### @@# @@#].join("\n") }
-      its(:lines) { should == %w[### @@# @@#] }
-    end
-    context do
-      before do
-        subject.position.x = 3
-        subject.position.y = 3
-        subject.print_rect "@@\n" +
-                           "@@"
-      end
-
-      its(:as_text) { should == [ "###",
-                                  "###",
-                                  "###",
-                                  "   @@",
-                                  "   @@" ].join("\n") }
     end
   end
 end

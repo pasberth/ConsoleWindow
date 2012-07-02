@@ -1,9 +1,15 @@
 require 'curses'
 require 'console_window/container'
+require 'console_window/curses_io'
 
 module ConsoleWindow
 
   class Screen < Container
+
+    def initialize *args, &block
+      super
+      @curses_io = CursesIO.new(curses_window)
+    end
 
     def default_attributes
       super.merge({ curses_window: Curses.stdscr })
@@ -14,6 +20,7 @@ module ConsoleWindow
     # ====================
 
     attr_accessor :curses_window
+    attr_accessor :curses_io
 
     def screen
       self
@@ -46,64 +53,24 @@ module ConsoleWindow
 
     # NOTE: this function is Unicode Only
     def gets sep = $/
-      raise NoMethodError unless curses_window
-      bytes = nil
       curx, cury = cursor.x, cursor.y
-      ipt = []
-      buf = []
+      [].tap do |ipt|
+        while ipt.last != sep
 
-      while ipt.last != sep
-
-        if buf.empty?
           paint
           curses_window.setpos cury, curx
           curses_window.addstr ipt.join
-        end
 
-        buf << ( case c = curses_window.getch
-                 when Integer then c
-                 when String then c.bytes.first
-                 else c
-                 end )
-
-        case buf.length
-        when 1
-          if 0xF8 & buf.first == 0xF0 # 4 bytes character
-            bytes = 4
-            next
-          elsif 0xF0 & buf.first == 0xE0 # 3 bytes character
-            bytes = 3
-            next
-          elsif 0xE0 & buf.first == 0xC0 # 2 bytes character
-            bytes = 2
-            next
+          case c = curses_io.getc
+          when nil
+            abort
+          when 127.chr # DEL
+            ipt.pop
           else
-            char = buf.pop
-            case char
-            when 127 # DEL
-              ipt.pop
-            else
-              ipt << char.chr
-            end
+            ipt << c
           end
-        when 2
-          next if bytes.nil? or bytes > 2
-          ipt << buf.pack("C2").encode("UTF-8", "UTF-8")
-          buf.clear
-        when 3
-          next if bytes.nil? or bytes > 3
-          ipt << buf.pack("C3").encode("UTF-8", "UTF-8")
-          buf.clear
-        when 4
-          next if bytes.nil? or bytes > 4
-          ipt << buf.pack("C4").encode("UTF-8", "UTF-8")
-          buf.clear
-        else
-          abort
         end
-      end
-
-      return ipt.join
+      end.join
     end
   end
 end

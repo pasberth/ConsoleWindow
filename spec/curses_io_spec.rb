@@ -3,38 +3,51 @@ require 'spec_helper'
 
 describe ConsoleWindow::CursesIO do
 
-  context do
-    let(:curses_window_mock) { CursesWindowMock.new(text: "abc") }
-    subject { described_class.new(curses_window_mock) }
+  describe "#getc" do
 
-    example do
-      subject.getc.should == 'a'
-      subject.getc.should == 'b'
-      subject.getc.should == 'c'
-      subject.getc.should be_nil
+    shared_examples_for "taking a character" do
+      let(:curses_window_mock) { CursesWindowMock.new(text: text_source) }
+      subject { described_class.new(curses_window_mock) }
+
+      example do
+        expecting_chars.each do |char|
+          subject.getc.should == char
+        end
+      end
+    end
+
+    it_behaves_like "taking a character" do
+      let(:text_source) { "abc" }
+      let(:expecting_chars) { ['a', 'b', 'c', nil] }
+    end
+
+    it_behaves_like "taking a character" do
+      let(:text_source) { "あいう" }
+      let(:expecting_chars) { ['あ', 'い', 'う', nil] }
     end
   end
 
-  context do
-    let(:curses_window_mock) { CursesWindowMock.new(text: "あいう") }
-    subject { described_class.new(curses_window_mock) }
+  describe "#gets" do
 
-    example do
-      subject.getc.should == 'あ'
-      subject.getc.should == 'い'
-      subject.getc.should == 'う'
-      subject.getc.should be_nil
+    shared_examples_for "getting a line" do 
+      let(:curses_window_mock) { CursesWindowMock.new(text: text_source) }
+      subject { described_class.new(curses_window_mock) }
+
+      example do
+        expecting_lines.each do |line|
+          subject.gets.should == line
+        end
+      end
     end
-  end
 
-  context do
-    let(:curses_window_mock) { CursesWindowMock.new(text: "abc\ndef\n") }
-    subject { described_class.new(curses_window_mock) }
+    it_behaves_like "getting a line" do
+      let(:text_source) { "abc\ndef\n" }
+      let(:expecting_lines) { ["abc\n", "def\n", nil] }
+    end
 
-    example do
-      subject.gets.should == "abc\n"
-      subject.gets.should == "def\n"
-      subject.gets.should be_nil
+    it_behaves_like "getting a line" do
+      let(:text_source) { "abc\ndef" }
+      let(:expecting_lines) { ["abc\n", "def", nil] }
     end
   end
 end

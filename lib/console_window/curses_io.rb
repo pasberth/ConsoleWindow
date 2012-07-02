@@ -53,15 +53,13 @@ module ConsoleWindow
     end
 
     def gets sep = $/
-      [].tap do |ipt|
-        while ipt.last != sep
-          if c = getc
-            ipt << c
-          else
-            return
-          end
-        end
-      end.join
+      ret = [].tap do |ipt|
+        begin
+          ipt << getc
+        end while ipt.last and ipt.last != sep
+      end
+
+      ret.none? ? nil : ret.join
     end
   end
 end

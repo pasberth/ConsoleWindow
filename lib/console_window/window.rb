@@ -2,6 +2,9 @@ module ConsoleWindow
 
   class Window
 
+    require 'console_window/window/lines'
+    require 'console_window/window/attributes'
+
     def initialize attributes = {}
       attributes = default_attributes.merge(attributes)
       attributes.each { |attr, val| send :"#{attr}=", val }
@@ -158,112 +161,4 @@ module ConsoleWindow
       screen.gets
     end
   end
-
-  class Window::Line
-
-    include Enumerable
-
-    def initialize line = []
-      @line = line
-    end
-
-    def method_missing f, *args, &block
-      @line.respond_to?(f) ? @line.send(f, *args, &block) : super
-    end
-
-    [:==].each do |m|
-      class_eval(<<-DEFINE)
-          def #{m}(*args, &block)
-            @line.send(:#{m}, *args, &block)
-          end
-        DEFINE
-    end
-
-    def to_s
-      map { |l| l ? l.to_s : ' ' }.join
-    end
-  end
-
-  class Window::Lines
-
-    include Enumerable
-
-    def initialize lines = []
-      @lines = lines
-    end
-
-    def method_missing f, *args, &block
-      @lines.respond_to?(f) ? @lines.send(f, *args, &block) : super
-    end
-
-    [:==].each do |m|
-      class_eval(<<-DEFINE)
-          def #{m}(*args, &block)
-            @lines.send(:#{m}, *args, &block)
-          end
-        DEFINE
-    end
-
-    def each
-      if block_given?
-        length.times { |i| yield self[i] }
-        self
-      else
-        Enumerator.new(self, :each)
-      end
-    end
-
-    def [] *args, &block
-      case args.count
-      when 1
-        case args[-1]
-        when Range
-          case lines = @lines[*args]
-          when Array then Window::Lines.new(lines)
-          else lines
-          end
-        else
-          case line = @lines[*args]
-          when Window::Line then line
-          when String then self[*args] = Window::Line.new(line.each_char.to_a)
-          when Array then self[*args] = Window::Line.new(line)
-          when nil then self[*args] = Window::Line.new([])
-          else line
-          end
-        end
-      else @lines[*args]
-      end
-    end
-
-    def join *args
-      map(&:to_s).join(*args)
-    end
-  end
-
-  class Window::WindowPoint < Struct.new(:window, :x, :y)
-
-    def absolute_x
-      window.location.absolute_x + x
-    end
-
-    def absolute_y
-      window.location.absolute_y + y
-    end
-  end
-
-  class Window::Location < Window::WindowPoint
-
-    def absolute_x
-      window.owner ? (window.owner.location.absolute_x + x) : x
-    end
-
-    def absolute_y
-      window.owner ? (window.owner.location.absolute_y + y) : y
-    end
-  end
-
-  Window::Size = Struct.new :width, :height
-  class Window::Position < Window::WindowPoint; end
-  class Window::Cursor < Window::WindowPoint; end
-  class Window::Scroll < Window::WindowPoint; end
 end

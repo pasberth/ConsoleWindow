@@ -41,3 +41,26 @@ describe ConsoleWindow::Window do
     end
   end
 end
+
+describe ConsoleWindow::Window::Lines do
+
+  it { should be_empty }
+  its([0]) { should_not be_nil }
+
+  context "Create a new Lines instance with Array" do
+    subject { described_class.new(["line"]) }
+    it { have(1).itmes }
+    its([0]) { should == %w[l i n e] }
+    its([1]) { should_not be_nil }
+  end
+
+  context "Replace a line" do
+
+    subject { described_class.new(["Old line"]) }
+
+    example do
+      subject[0] = 'new'
+      subject[0].should == %w[n e w]
+    end
+  end
+end

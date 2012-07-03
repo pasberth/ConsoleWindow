@@ -52,14 +52,26 @@ module ConsoleWindow
     # ====================
 
     # NOTE: this function is Unicode Only
+    def focus!
+      cury = cursor.y
+      curx = displayed_lines[cursor.y][0 .. cursor.x].inject(0) do |i, char|
+        case char.bytes.count
+        when 1 then i + 1
+        when 2..4 then i + 2
+        else abort
+        end
+      end
+      curses_window.setpos cury, curx
+      true
+    end
 
     def getc
-      curses_window.setpos cursor.y, cursor.x
+      focus!
       curses_io.getc
     end
 
     def gets sep = $/
-      curses_window.setpos cursor.y, cursor.x
+      focus!
       curses_io.gets(sep)
     end
   end

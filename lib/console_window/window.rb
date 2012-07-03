@@ -146,18 +146,23 @@ module ConsoleWindow
     end
 
     # ====================
-    # Input
+    # Curses Controllers
     # ====================
 
-    def getc
+    def focus!
       screen.cursor.x = cursor.absolute_x
       screen.cursor.y = cursor.absolute_y
+      screen.focus!
+      true
+    end
+
+    def getc
+      focus!
       screen.getc
     end
 
     def gets
-      screen.cursor.x = cursor.absolute_x
-      screen.cursor.y = cursor.absolute_y
+      focus!
       screen.gets
     end
   end

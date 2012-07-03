@@ -26,6 +26,14 @@ module ConsoleWindow
       def to_s
         map { |l| l ? l.to_s : ' ' }.join
       end
+
+      def clone
+        cln = super
+        cln.instance_exec @line do |ln|
+          @line = ln.clone
+        end
+        cln
+      end
     end
     
     class Lines
@@ -81,6 +89,14 @@ module ConsoleWindow
       
       def join *args
         map(&:to_s).join(*args)
+      end
+
+      def clone
+        cln = super
+        cln.instance_exec @lines do |lns|
+          @lines = lns.map { |l| l ? l.clone : nil }
+        end
+        cln
       end
     end
   end

@@ -63,4 +63,35 @@ describe ConsoleWindow::Window::Lines do
       subject[0].should == %w[n e w]
     end
   end
+
+  context "Clone the lines" do
+    let(:origin) { described_class.new(%w[ first second last]) }
+    subject { origin }
+
+    shared_examples_for "side effect" do
+
+      example { origin[0].should == %w[f i r s t] }
+      example { origin[1].should == %w[s e c o n d] }
+      example { origin[2].should == %w[l a s t] }
+    end
+
+    context do 
+      let(:clone) { origin.clone }
+      subject { clone }
+
+      it_behaves_like "side effect" do
+
+        before do
+          clone[0] = 'replaced line'
+        end
+      end
+
+      it_behaves_like "side effect" do
+
+        before do
+          clone[0][0] = 'c'
+        end
+      end
+    end
+  end
 end

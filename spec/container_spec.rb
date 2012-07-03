@@ -74,5 +74,14 @@ Information line
 Command line                                                                    
 A
     end
+
+    context "replace a line" do
+      before do
+        @info_line.lines[0] = 'New info'
+      end
+
+      its(:as_displayed_text) { should_not include "Information line" }
+      its(:as_displayed_text) { should include "New info" }
+    end
   end
 end

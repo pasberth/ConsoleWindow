@@ -8,6 +8,11 @@ module ConsoleWindow
       @curses_window = curses_window
     end
 
+    def write text
+      @curses_window.addstr(text)
+      true
+    end
+
     # ====================
     # Input 
     # ====================

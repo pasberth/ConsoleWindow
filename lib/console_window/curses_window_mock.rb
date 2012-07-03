@@ -43,7 +43,13 @@ module ConsoleWindow
 
     def addstr str
       str.each_char do |b|
-        (@screen[cury] ||= [])[@curx += 1] = b
+        if @curx >= maxx
+          @curx = 0
+          @cury += 1
+        end
+
+        (@screen[cury] ||= [])[@curx] = b
+        @curx += 1
       end
       nil
     end

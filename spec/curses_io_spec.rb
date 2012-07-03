@@ -3,6 +3,28 @@ require 'spec_helper'
 
 describe ConsoleWindow::CursesIO do
 
+  describe "Output" do
+
+    shared_examples_for "writing string" do
+      let(:width) { 10 }
+      let(:height) { 5 }
+      let(:curses_window_mock) { CursesWindowMock.new(maxx: width, maxy: height) }
+      subject { described_class.new(curses_window_mock) }
+
+      example do
+        subject.write(text_source)
+        curses_window_mock.screen.should == expecting_screen.each_char.each_slice(10).to_a
+      end
+    end
+
+    describe "#write" do
+      it_behaves_like "writing string" do
+        let(:text_source) { "abc" }
+        let(:expecting_screen) { "abc" }
+      end
+    end
+  end
+
   describe "#getc" do
 
     shared_examples_for "taking a character" do

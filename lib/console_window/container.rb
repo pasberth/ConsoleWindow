@@ -32,7 +32,7 @@ module ConsoleWindow
 
       h = height ? (height + scroll.y - 1) : -1
       w = width ? (width + scroll.x - 1) : -1
-      (lines[scroll.y .. h] || []).map { |line| line ? line[scroll.x .. w] : '' }.join("\n")
+      lines[scroll.y .. h].map { |line| line[scroll.x .. w].join }.join("\n")
     end
 
     # ====================

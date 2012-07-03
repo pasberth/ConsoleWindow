@@ -13,6 +13,14 @@ module ConsoleWindow
 
     attr_accessor :lines
 
+    def lines= lines
+      @lines = case lines
+               when Array then Lines.new(lines)
+               when Lines then lines
+               else raise TypeError, "Can't convert #{lines.class} into #{Lines}"
+               end
+    end
+
     def location
       @location or self.location = Location.new(self, 0, 0)
     end
@@ -87,7 +95,7 @@ module ConsoleWindow
     def displayed_lines
       h = height ? (height + scroll.y - 1) : -1
       w = width ? (width + scroll.x - 1) : -1
-      (lines[scroll.y .. h] || []).map { |line| line[scroll.x .. w] }
+      Lines.new lines[scroll.y .. h].map { |line| line[scroll.x .. w] }
     end
 
     # ====================
@@ -118,14 +126,8 @@ module ConsoleWindow
       pos_y = opts[:pos_y]
       lines = opts[:lines].clone
 
-      text.each_line.each_with_index do |str, i|
-        str.chomp!
-        l = (lines[pos_y + i] ||= '')
-        if l.length < pos_x
-          lines[pos_y + i] = l + (' ' * (pos_x - l.length)) + str
-        else
-          l[pos_x .. (str.length + pos_x - 1)] = str
-        end
+      text.split("\n").each_with_index do |str, i|
+        lines[pos_y + i][pos_x .. (str.length + pos_x - 1)] = str.each_char.to_a
       end
 
       lines
@@ -157,7 +159,86 @@ module ConsoleWindow
     end
   end
 
-  Window::Lines = Array
+  class Window::Line
+
+    include Enumerable
+
+    def initialize line = []
+      @line = line
+    end
+
+    def method_missing f, *args, &block
+      @line.respond_to?(f) ? @line.send(f, *args, &block) : super
+    end
+
+    [:==].each do |m|
+      class_eval(<<-DEFINE)
+          def #{m}(*args, &block)
+            @line.send(:#{m}, *args, &block)
+          end
+        DEFINE
+    end
+
+    def to_s
+      map { |l| l ? l.to_s : ' ' }.join
+    end
+  end
+
+  class Window::Lines
+
+    include Enumerable
+
+    def initialize lines = []
+      @lines = lines
+    end
+
+    def method_missing f, *args, &block
+      @lines.respond_to?(f) ? @lines.send(f, *args, &block) : super
+    end
+
+    [:==].each do |m|
+      class_eval(<<-DEFINE)
+          def #{m}(*args, &block)
+            @lines.send(:#{m}, *args, &block)
+          end
+        DEFINE
+    end
+
+    def each
+      if block_given?
+        length.times { |i| yield self[i] }
+        self
+      else
+        Enumerator.new(self, :each)
+      end
+    end
+
+    def [] *args, &block
+      case args.count
+      when 1
+        case args[-1]
+        when Range
+          case lines = @lines[*args]
+          when Array then Window::Lines.new(lines)
+          else lines
+          end
+        else
+          case line = @lines[*args]
+          when Window::Line then line
+          when String then self[*args] = Window::Line.new(line.each_char.to_a)
+          when Array then self[*args] = Window::Line.new(line)
+          when nil then self[*args] = Window::Line.new([])
+          else line
+          end
+        end
+      else @lines[*args]
+      end
+    end
+
+    def join *args
+      map(&:to_s).join(*args)
+    end
+  end
 
   class Window::WindowPoint < Struct.new(:window, :x, :y)
 

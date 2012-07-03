@@ -39,7 +39,6 @@ describe ConsoleWindow::Window do
     its('scroll.absolute_x') { should == 0 }
     its('scroll.absolute_y') { should == 0 }
 
-
     example do
       subject.x = 5
       subject.location.x.should == 5

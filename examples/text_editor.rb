@@ -45,7 +45,9 @@ module TextEditor
 
     def activate argv = ARGV
       load_file argv.shift
-      init
+      @mode = [:normal]
+      view_info
+      @screen.paint
       normal_mode
     end
 
@@ -69,17 +71,24 @@ module TextEditor
       "%3d| %s" % [no, line]
     end
 
-    def init
-      view_info
-      @screen.paint
-    end
+    def view_info opts = {}
+      opts = {
+        mode: @mode[0].to_s,
+        msg: "editing #{@filename}",
+        prefix: "# "
+      }.merge(opts)
 
-    def view_info msg = "editing #{@filename}.", prefix = "# "
-      @info_bar.lines[0] = "%s%s" % [prefix, msg]
+      msg = opts[:msg]
+      prefix = opts[:prefix]
+      mode = opts[:mode]
+
+      @info_bar.lines[0] = "#{@filename} [%s] %s%s" % [ mode, prefix, msg ]
+      @screen.paint
     end
 
     def normal_mode
       @mode = [:normal]
+      view_info mode: "normal", msg: "Type h/j/k/l, move cursor. Type 'i', change to the insert mode. Type ':', input command."
       begin
         normal_command
       end while @mode[0] == :normal
@@ -87,6 +96,7 @@ module TextEditor
 
     def insert_mode
       @mode = [:insert]
+      view_info mode: "insert", msg: "Type any key, edit the file. Press the ESC, back to the normal mode."
       begin
         insert_command
       end while @mode[0] == :insert
@@ -100,12 +110,17 @@ module TextEditor
       when 'j' then scroll_down
       when 'k' then scroll_up
       when 'l' then scroll_right
+      when "\n" then carriage_return
       when 127.chr, 'i' then insert_mode
-      when ':' then 
+      when ':' then
+        view_info msg: "Type 'q' and the enter key, quit the application. (but will not save.) Type 'w', write into the '#{@filename}'."
         case @cmd_line.gets
+        when /^wq/
+          @mode = [:quit]
+          File.write(@filename, @buffer.map(&:join).join("\n"))
         when /^q/
           @mode = [:quit]
-        when /^w\!/
+        when /^w/
           File.write(@filename, @buffer.map(&:join).join("\n"))
         else
         end
@@ -122,7 +137,8 @@ module TextEditor
     end
 
     def scroll_down
-      if @text_view.cursor.y < text_view_height
+      if (@text_view.scroll.y + @text_view.cursor.y) >= @buffer.length
+      elsif @text_view.cursor.y < text_view_height
         @text_view.cursor.y += 1
       else
         @text_view.scroll.y += 1
@@ -140,11 +156,19 @@ module TextEditor
     end
 
     def scroll_right
-      if @text_view.cursor.x + text_view_cursor_base_x < text_view_width
+      if (@text_view.cursor.x - text_view_cursor_base_x) >= (@buffer[ @text_view.scroll.y + @text_view.cursor.y ] || []).length
+      elsif @text_view.cursor.x + text_view_cursor_base_x < text_view_width
         @text_view.cursor.x += 1
       else
         @text_view.scroll.x += 1
       end
+      @screen.paint
+    end
+
+    def carriage_return
+      scroll_down
+      @text_view.cursor.x = text_view_cursor_base_x
+      @text_view.scroll.x = 0
       @screen.paint
     end
 
@@ -154,13 +178,25 @@ module TextEditor
         @screen.paint
         normal_mode
       when 127.chr # DEL
-        (@buffer[ @text_view.cursor.y ] ||= []).delete_at(@text_view.cursor.x - text_view_cursor_base_x)
-        @text_view.lines[ @text_view.cursor.y ] = line_format @buffer[ @text_view.cursor.y ].join, @text_view.cursor.y + 1
-        scroll_left
+        if @text_view.scroll.x + @text_view.cursor.x - text_view_cursor_base_x - 1 >= 0
+          (@buffer[ @text_view.cursor.y ] ||= []).delete_at(@text_view.scroll.x + @text_view.cursor.x - text_view_cursor_base_x - 1)
+          @text_view.lines[ @text_view.cursor.y ] = line_format @buffer[ @text_view.cursor.y ].join, @text_view.cursor.y + 1
+          scroll_left
+          @screen.paint
+        end
+      when "\n"
+        carriage_return
+        @buffer.insert @text_view.cursor.y, []
+        @text_view.lines.insert(@text_view.cursor.y, line_format('', @text_view.cursor.y + 1))
         @screen.paint
       else
-        (@buffer[ @text_view.cursor.y ] ||= [])[ @text_view.cursor.x - text_view_cursor_base_x ] = char
-        (@text_view.lines[ @text_view.cursor.y ] ||= line_format('', @text_view.cursor.y + 1))[ @text_view.cursor.x ] = char
+        if @buffer[ @text_view.cursor.y ]
+          @buffer[ @text_view.cursor.y ].insert( @text_view.cursor.x - text_view_cursor_base_x, char )
+        else
+          @buffer[ @text_view.cursor.y ] = ("%*s" % [ @text_view.cursor.x - text_view_cursor_base_x,
+                                                      char ]).chars.to_a
+        end
+        @text_view.lines[ @text_view.cursor.y ] = line_format @buffer[ @text_view.cursor.y ].join, @text_view.cursor.y + 1
         scroll_right
         @screen.paint
       end

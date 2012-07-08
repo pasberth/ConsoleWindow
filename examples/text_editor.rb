@@ -44,6 +44,11 @@ module TextEditor
     end
 
     def activate argv = ARGV
+      if argv.empty?
+        STDOUT.puts "Usage: #{$0} <path>"
+        return
+      end
+      
       load_file argv.shift
       @mode = [:normal]
       view_info

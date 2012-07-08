@@ -137,7 +137,7 @@ describe ConsoleWindow::Window do
     
     example do
       subject.size.height = 10
-      subject.size.height.should == 10
+      subject.height.should == 10
     end
   end
 

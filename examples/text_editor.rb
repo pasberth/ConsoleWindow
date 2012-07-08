@@ -142,7 +142,7 @@ module TextEditor
     end
 
     def scroll_down
-      if (@text_view.scroll.y + @text_view.cursor.y) >= @buffer.length
+      if (@text_view.logical_cursor.y) >= @buffer.length
       elsif @text_view.cursor.y < text_view_height
         @text_view.cursor.y += 1
       else
@@ -161,8 +161,8 @@ module TextEditor
     end
 
     def scroll_right
-      if (@text_view.cursor.x - text_view_cursor_base_x) >= (@buffer[ @text_view.scroll.y + @text_view.cursor.y ] || []).length
-      elsif @text_view.cursor.x + text_view_cursor_base_x < text_view_width
+      if (@text_view.logical_cursor.x - text_view_cursor_base_x) >= (@buffer[ @text_view.logical_cursor.y ] || []).length
+      elsif @text_view.logical_cursor.x + text_view_cursor_base_x < text_view_width
         @text_view.cursor.x += 1
       else
         @text_view.scroll.x += 1
@@ -183,25 +183,29 @@ module TextEditor
         @screen.paint
         normal_mode
       when 127.chr # DEL
-        if @text_view.scroll.x + @text_view.cursor.x - text_view_cursor_base_x - 1 >= 0
-          (@buffer[ @text_view.cursor.y ] ||= []).delete_at(@text_view.scroll.x + @text_view.cursor.x - text_view_cursor_base_x - 1)
-          @text_view.lines[ @text_view.cursor.y ] = line_format @buffer[ @text_view.cursor.y ].join, @text_view.cursor.y + 1
+        if @text_view.logical_cursor.x - text_view_cursor_base_x - 1 >= 0
+          (@buffer[ @text_view.logical_cursor.y ] ||= []).
+            delete_at( @text_view.logical_cursor.x - text_view_cursor_base_x - 1)
+          @text_view.lines[ @text_view.logical_cursor.y ] =
+            line_format( @buffer[ @text_view.logical_cursor.y ].join,
+                         @text_view.logical_cursor.y + 1)
           scroll_left
           @screen.paint
         end
       when "\n"
         carriage_return
-        @buffer.insert @text_view.cursor.y, []
-        @text_view.lines.insert(@text_view.cursor.y, line_format('', @text_view.cursor.y + 1))
+        @buffer.insert @text_view.logical_cursor.y, []
+        @text_view.lines.insert(@text_view.logical_cursor.y, line_format('', @text_view.logical_cursor.y + 1))
         @screen.paint
       else
-        if @buffer[ @text_view.cursor.y ]
-          @buffer[ @text_view.cursor.y ].insert( @text_view.cursor.x - text_view_cursor_base_x, char )
+        if @buffer[ @text_view.logical_cursor.y ]
+          @buffer[ @text_view.logical_cursor.y ].insert( @text_view.logical_cursor.x - text_view_cursor_base_x, char )
         else
-          @buffer[ @text_view.cursor.y ] = ("%*s" % [ @text_view.cursor.x - text_view_cursor_base_x,
-                                                      char ]).chars.to_a
+          @buffer[ @text_view.logical_cursor.y ] =
+            ( "%*s" % [ @text_view.logical_cursor.x - text_view_cursor_base_x,
+                        char ] ).chars.to_a
         end
-        @text_view.lines[ @text_view.cursor.y ] = line_format @buffer[ @text_view.cursor.y ].join, @text_view.cursor.y + 1
+        @text_view.lines[ @text_view.logical_cursor.y ] = line_format @buffer[ @text_view.logical_cursor.y ].join, @text_view.logical_cursor.y + 1
         scroll_right
         @screen.paint
       end

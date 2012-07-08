@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'spec_helper'
 
 describe ConsoleWindow::Window do
@@ -41,8 +42,27 @@ describe ConsoleWindow::Window do
     its('scroll.absolute_x') { should == 0 }
     its('scroll.absolute_y') { should == 0 }
 
+    its('logical_cursor.x') { should == 0 }
+    its('logical_cursor.y') { should == 0 }
   end
 
+  describe "#logical_cursor" do
+
+    context do
+      let(:cursor_x) { 10 }
+      let(:cursor_y) { 5 }
+      let(:scroll_x) { 10 }
+      let(:scroll_y) { 5 }
+      
+      before do
+        subject.cursor = [cursor_x, cursor_y]
+        subject.scroll = [scroll_x, scroll_y]
+      end
+      
+      its('logical_cursor.x') { should == cursor_x + scroll_x }
+      its('logical_cursor.y') { should == cursor_y + scroll_y }
+    end
+  end
 
   describe "Setting attributes" do
 
@@ -138,6 +158,12 @@ describe ConsoleWindow::Window do
     example do
       subject.size.height = 10
       subject.height.should == 10
+    end
+
+    example do
+      pending "論理カーソルへの代入は物理カーソルでどこを示せばよいか未定義" do
+        subject.logical_cursor = [10, 10]
+      end
     end
   end
 

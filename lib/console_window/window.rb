@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 module ConsoleWindow
 
   class Window
@@ -90,6 +91,13 @@ module ConsoleWindow
       @location or self.location = [0, 0]
     end
 
+    attr_reader :logical_cursor
+
+    def logical_cursor= val
+      # 最初の一度だけ代入可能
+      @logical_cursor ? raise(NoMethodError) : @logical_cursor = val
+    end
+
     attr_accessor :owner
 
     def screen
@@ -108,6 +116,7 @@ module ConsoleWindow
         :position => Position.new(self, 0, 0),
         :cursor => Cursor.new(self, 0, 0),
         :scroll => Scroll.new(self, 0, 0),
+        :logical_cursor => LogicalCursor.new(self)
         # :owner => Screen.new # required
       }
     end

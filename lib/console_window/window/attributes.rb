@@ -26,4 +26,15 @@ module ConsoleWindow
   class Window::Position < Window::WindowPoint; end
   class Window::Cursor < Window::WindowPoint; end
   class Window::Scroll < Window::WindowPoint; end
+
+  class Window::LogicalCursor < Struct.new :window
+
+    def x
+      window.cursor.x + window.scroll.x
+    end
+
+    def y
+      window.cursor.y + window.scroll.y
+    end
+  end
 end

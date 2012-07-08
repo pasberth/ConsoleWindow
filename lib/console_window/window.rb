@@ -24,16 +24,6 @@ module ConsoleWindow
                end
     end
 
-    def location
-      @location or self.location = Location.new(self, 0, 0)
-    end
-
-    def location= l
-      @location = l.tap do |l|
-        l.window = self
-      end
-    end
-
     [ :x,
       :y,
       :absolute_x,
@@ -50,10 +40,16 @@ module ConsoleWindow
       A
     end
 
-    attr_accessor :size
-
     def size
       @size ||= Size.new
+    end
+
+    def size= val
+      @size = ( case val
+                when Array then Size.new(*val)
+                when Size then val
+                else raise TypeError "Can't convert #{val.class} into #{Size}"
+                end )
     end
 
     [:width, :height].each do |a|
@@ -68,10 +64,31 @@ module ConsoleWindow
       A
     end
 
-    attr_accessor :position
-    attr_accessor :cursor
-    attr_accessor :scroll
+    [ :location, :Location,
+      :position, :Position,
+      :cursor,   :Cursor,
+      :scroll,   :Scroll
+    ].each_slice(2) do |attr_name, class_name|
+        
+      class_eval(<<-DEFINE)
 
+          attr_reader :#{attr_name}
+
+          def #{attr_name}= val
+            @#{attr_name} = ( case val
+                              when Array then #{class_name}.new(self, *val)
+                              when #{class_name} then val
+                              else raise TypeError "Can't convert \#{val.class} into \#{#{class_name}}"
+                              end ).tap do |point|
+              point.window = self
+            end
+          end
+      DEFINE
+    end
+
+    def location
+      @location or self.location = [0, 0]
+    end
 
     attr_accessor :owner
 

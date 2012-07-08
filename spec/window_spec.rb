@@ -3,7 +3,9 @@ require 'spec_helper'
 describe ConsoleWindow::Window do
 
   let(:window) { described_class.new(width: 80, height: 20) }
+
   subject { window }
+
 
   describe "the default value of each attritbes." do
 
@@ -39,11 +41,70 @@ describe ConsoleWindow::Window do
     its('scroll.absolute_x') { should == 0 }
     its('scroll.absolute_y') { should == 0 }
 
+  end
+
+
+  describe "Setting attributes" do
+
+    context do
+      let(:x) { 10 }
+      let(:y) { 5 }
+        
+      before { subject.location = [x, y] }
+        
+      its(:x) { should == x }
+      its(:y) { should == y }
+      its('location.x') { should == x }
+      its('location.y') { should == y }
+    end
+
+    context do
+      let(:w) { 10 }
+      let(:h) { 5 }
+        
+      before { subject.size = [w, h] }
+        
+      its(:width) { should == w }
+      its(:height) { should == h }
+      its('size.width') { should == w }
+      its('size.height') { should == h }
+    end
+
+    context do
+      let(:x) { 10 }
+      let(:y) { 5 }
+        
+      before { subject.position = [x, y] }
+        
+      its('position.x') { should == x }
+      its('position.y') { should == y }
+    end
+
+      context do
+      let(:x) { 10 }
+      let(:y) { 5 }
+      
+      before { subject.cursor = [x, y] }
+      
+      its('cursor.x') { should == x }
+      its('cursor.y') { should == y }
+    end
+    
+    context do
+      let(:x) { 10 }
+      let(:y) { 5 }
+      
+      before { subject.scroll = [x, y] }
+      
+      its('scroll.x') { should == x }
+      its('scroll.y') { should == y }
+    end
+
     example do
       subject.x = 5
       subject.location.x.should == 5
     end
-
+      
     example do
       subject.location.x = 5
       subject.x.should == 5
@@ -53,32 +114,33 @@ describe ConsoleWindow::Window do
       subject.y = 5
       subject.location.y.should == 5
     end
-
+      
     example do
       subject.location.y = 5
       subject.y.should == 5
     end
-
+    
     example do
       subject.width = 40
       subject.size.width.should == 40
     end
-
+    
     example do
       subject.size.width = 40
       subject.width.should == 40
     end
-
+    
     example do
       subject.height = 10
       subject.size.height.should == 10
     end
-
+    
     example do
       subject.size.height = 10
       subject.size.height.should == 10
     end
   end
+
 
   describe "To Text Methods" do
 

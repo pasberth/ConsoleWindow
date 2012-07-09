@@ -143,28 +143,7 @@ module ConsoleWindow
     def as_displayed_text
       displayed_lines.to_s.chomp
     end
-=begin
-    # ====================
-    # Addition Methods
-    # ====================
 
-    def add_rect text, opts = {}
-      opts = {
-        pos_x: position.x,
-        pos_y: position.y,
-        lines: self.lines
-      }.merge(opts)
-      pos_x = opts[:pos_x]
-      pos_y = opts[:pos_y]
-      lines = opts[:lines].clone
-
-      text.split("\n").each_with_index do |str, i|
-        lines[pos_y + i][pos_x .. (str.length + pos_x - 1)] = str.each_char.to_a
-      end
-
-      lines
-    end
-=end
     # ====================
     # Printing Methods
     # ====================

@@ -3,7 +3,7 @@ module ConsoleWindow
 
   class Window
 
-    require 'console_window/window/lines'
+    require 'console_window/window/text'
     require 'console_window/window/attributes'
 
     def initialize attributes = {}
@@ -15,15 +15,18 @@ module ConsoleWindow
     # Attribute Methods
     # ====================
 
-    attr_accessor :lines
+    attr_accessor :text
 
-    def lines= lines
-      @lines = case lines
-               when Array then Lines.new(lines)
-               when Lines then lines
-               else raise TypeError, "Can't convert #{lines.class} into #{Lines}"
-               end
+    def text= text
+      @text = case text
+              when Array then Text.new(self, text)
+              when Text then text.tap { |t| t.window = self }
+              else raise TypeError, "Can't convert #{lines.class} into #{Text}"
+              end
     end
+
+    alias lines text
+    alias lines= text=
 
     [ :x,
       :y,
@@ -106,7 +109,7 @@ module ConsoleWindow
 
     def default_attributes
       {
-        :lines => Lines.new([]),
+        :text => Text.new(self, []),
         :location => Location.new(self, 0, 0),
         :size => Size.new(nil, nil),
         :x => 0,
@@ -122,9 +125,9 @@ module ConsoleWindow
     end
 
     def displayed_lines
-      h = height ? (height + scroll.y - 1) : -1
-      w = width ? (width + scroll.x - 1) : -1
-      Lines.new lines[scroll.y .. h].map { |line| line[scroll.x .. w] }
+      h = height ? (height + scroll.y) : -1
+      w = width ? (width + scroll.x) : -1
+      text.crop(scroll.x, scroll.y, w, h)
     end
 
     # ====================
@@ -132,15 +135,15 @@ module ConsoleWindow
     # ====================
 
     def as_text
-      lines.join "\n"
+      text.to_s.chomp
     end
 
     alias as_full_text as_text
 
     def as_displayed_text
-      displayed_lines.join "\n"
+      displayed_lines.to_s.chomp
     end
-
+=begin
     # ====================
     # Addition Methods
     # ====================
@@ -161,13 +164,13 @@ module ConsoleWindow
 
       lines
     end
-
+=end
     # ====================
     # Printing Methods
     # ====================
     
     def print_rect text
-      self.lines = add_rect(text)
+      self.text = self.text.paste(text, position.x, position.y)
       true
     end
 

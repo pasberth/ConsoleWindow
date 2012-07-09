@@ -16,27 +16,27 @@ module ConsoleWindow
     # ====================
 
     def displayed_lines
-      lines = self.lines
+      text = self.text.clone
       components.each do |comp|
-        lines = add_rect(comp.as_displayed_text, pos_x: comp.x, pos_y: comp.y, lines: lines)
+        text.paste!(comp.as_displayed_text, comp.x, comp.y)
       end
 
-      h = height ? (height + scroll.y - 1) : -1
-      w = width ? (width + scroll.x - 1) : -1
-      Lines.new lines[scroll.y .. h].map { |line| line[scroll.x .. w].join }
+      h = height ? (height + scroll.y) : -1
+      w = width ? (width + scroll.x) : -1
+      text.crop(scroll.x, scroll.y, w, h)
     end
 
     def as_text
-      lines = self.lines
+      text = self.text.clone
       components.each do |comp|
-        lines = add_rect(comp.as_text, pos_x: comp.x, pos_y: comp.y, lines: lines)
+        text.paste!(comp.as_displayed_text, comp.x, comp.y)
       end
 
-      lines.join "\n"
+      text.to_s.chomp
     end
 
     def as_displayed_text
-      displayed_lines.join("\n")
+      displayed_lines.to_s.chomp
     end
 
     # ====================

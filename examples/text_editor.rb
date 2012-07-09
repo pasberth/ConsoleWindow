@@ -95,7 +95,7 @@ module TextEditor
     end
 
     def update_lineno
-      (@lineno_bar.lines.length .. @text_view.lines.length).each do |i|
+      (@lineno_bar.lines.count .. @text_view.lines.count).each do |i|
         @lineno_bar.lines[i] = "%3d| " % i
       end
     end
@@ -185,6 +185,7 @@ module TextEditor
     end
 
     def insert_command
+      @text_view.position = [ @text_view.logical_cursor.x, @text_view.logical_cursor.y ]
       case char = @text_view.getc
       when 27.chr # ESC
         @screen.paint
@@ -200,7 +201,7 @@ module TextEditor
       when "\n"
         carriage_return
         @buffer.insert @text_view.logical_cursor.y, []
-        @text_view.lines.insert(@text_view.logical_cursor.y, '')
+        @text_view.text << "\n"
         @screen.paint
       else
         if @buffer[ @text_view.logical_cursor.y ]

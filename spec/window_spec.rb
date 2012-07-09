@@ -10,7 +10,8 @@ describe ConsoleWindow::Window do
 
   describe "the default value of each attritbes." do
 
-    its(:lines) { should == [] }
+    its('text.to_s') { should == '' }
+    its(:lines) { pending("#lines は廃止予定") { should == [] } }
     its(:as_text) { should == "" }
     its(:as_displayed_text) { should == "" }
     its(:as_full_text) { should == "" }

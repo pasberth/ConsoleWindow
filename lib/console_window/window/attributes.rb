@@ -75,11 +75,11 @@ module ConsoleWindow
     end
 
     def max_x
-      window.lines[window.logical_cursor.y].length + window.width - 1
+      window.text[window.logical_cursor.y].count + window.width - 1
     end
 
     def max_y
-      window.lines.length + window.height - 1
+      window.text.count + window.height - 1
     end
   end
 

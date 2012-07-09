@@ -83,7 +83,7 @@ module TextEditor
       elsif File.exist? filename
         if filename != @filename
           @filename = filename
-          @text_view.text = File.read(@filename).split("\n").map { |l| l.each_char.to_a }
+          @text_view.text = File.read(@filename)
           update_lineno
         end
       else

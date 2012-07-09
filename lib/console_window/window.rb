@@ -26,11 +26,7 @@ module ConsoleWindow
     end
 
     def text= text
-      @text = case text
-              when Array then Text.new(self, text)
-              when Text then text.tap { |t| t.window = self }
-              else raise TypeError, "Can't convert #{lines.class} into #{Text}"
-              end
+      @text = Text.new(self, text)
     end
 
     alias lines text

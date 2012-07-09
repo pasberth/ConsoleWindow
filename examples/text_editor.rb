@@ -22,17 +22,38 @@ module TextEditor
     # |%                                       |   <- Command line
     # +----------------------------------------+
 
+
+    LINENO_BAR_WIDTH = 5
+    INFO_BAR_HEIGHT = 1
+    CMD_LINE_HEIGHT = 1
+
     def initialize
       @screen = ConsoleWindow::Screen.new
-      @text_view = @screen.create_sub_window(@screen.width, @screen.height - 2, 0, 0)
-      @text_view.cursor.x = text_view_cursor_base_x
-      @info_bar = @screen.create_sub_window(@screen.width, 1, 0, @screen.height - 2)
-      @cmd_line = @screen.create_sub_window(@screen.width, 1, 0, @screen.height - 1)
-      @screen.components << @text_view << @info_bar << @cmd_line
-    end
+      @lineno_bar = @screen.create_sub_window( LINENO_BAR_WIDTH,
+                                               @screen.height -
+                                               INFO_BAR_HEIGHT - CMD_LINE_HEIGHT,
+                                               0,
+                                               0 )
 
-    def text_view_cursor_base_x
-      5
+      @text_view = @screen.create_sub_window( @screen.width - LINENO_BAR_WIDTH,
+                                              @screen.height -
+                                              INFO_BAR_HEIGHT - CMD_LINE_HEIGHT,
+                                              LINENO_BAR_WIDTH,
+                                              0 )
+
+      update_lineno
+
+      @info_bar = @screen.create_sub_window( @screen.width,
+                                             INFO_BAR_HEIGHT,
+                                             0,
+                                             @screen.height - CMD_LINE_HEIGHT - 1 )
+
+      @cmd_line = @screen.create_sub_window( @screen.width,
+                                             CMD_LINE_HEIGHT,
+                                             0,
+                                             @screen.height - 1 )
+
+      @screen.components << @lineno_bar << @text_view << @info_bar << @cmd_line
     end
 
     def text_view_width
@@ -63,7 +84,8 @@ module TextEditor
         if filename != @filename
           @filename = filename
           @buffer = File.read(@filename).split("\n").map { |l| l.each_char.to_a }
-          @text_view.lines = @buffer.each_with_index.map { |l, i| line_format l.join, i+1 }
+          @text_view.lines = @buffer.clone
+          update_lineno
         end
       else
         @filename = filename
@@ -72,8 +94,10 @@ module TextEditor
       end
     end
 
-    def line_format line, no
-      "%3d| %s" % [no, line]
+    def update_lineno
+      (@lineno_bar.lines.length .. @text_view.lines.length).each do |i|
+        @lineno_bar.lines[i] = "%3d| " % i
+      end
     end
 
     def view_info opts = {}
@@ -138,12 +162,13 @@ module TextEditor
     end
 
     def scroll_down
-      @text_view.cursor.down! or @text_view.scroll.down!
+      @text_view.cursor.down! or @text_view.scroll.down! && @lineno_bar.scroll.down!
+      update_lineno
       @screen.paint
     end
 
     def scroll_up
-      @text_view.cursor.up! or @text_view.scroll.up!
+      @text_view.cursor.up! or @text_view.scroll.up! && @lineno_bar.scroll.up!
       @screen.paint
     end
 
@@ -154,7 +179,7 @@ module TextEditor
 
     def carriage_return
       scroll_down
-      @text_view.cursor.x = text_view_cursor_base_x
+      @text_view.cursor.x = 0
       @text_view.scroll.x = 0
       @screen.paint
     end
@@ -165,29 +190,27 @@ module TextEditor
         @screen.paint
         normal_mode
       when 127.chr # DEL
-        if @text_view.logical_cursor.x - text_view_cursor_base_x - 1 >= 0
+        if @text_view.logical_cursor.x > 0
           (@buffer[ @text_view.logical_cursor.y ] ||= []).
-            delete_at( @text_view.logical_cursor.x - text_view_cursor_base_x - 1)
-          @text_view.lines[ @text_view.logical_cursor.y ] =
-            line_format( @buffer[ @text_view.logical_cursor.y ].join,
-                         @text_view.logical_cursor.y + 1)
+            delete_at( @text_view.logical_cursor.x - 1)
+            @text_view.lines[ @text_view.logical_cursor.y ] = @buffer[ @text_view.logical_cursor.y ].join
           scroll_left
           @screen.paint
         end
       when "\n"
         carriage_return
         @buffer.insert @text_view.logical_cursor.y, []
-        @text_view.lines.insert(@text_view.logical_cursor.y, line_format('', @text_view.logical_cursor.y + 1))
+        @text_view.lines.insert(@text_view.logical_cursor.y, '')
         @screen.paint
       else
         if @buffer[ @text_view.logical_cursor.y ]
-          @buffer[ @text_view.logical_cursor.y ].insert( @text_view.logical_cursor.x - text_view_cursor_base_x, char )
+          @buffer[ @text_view.logical_cursor.y ].insert( @text_view.logical_cursor.x, char )
         else
           @buffer[ @text_view.logical_cursor.y ] =
-            ( "%*s" % [ @text_view.logical_cursor.x - text_view_cursor_base_x,
+            ( "%*s" % [ @text_view.logical_cursor.x,
                         char ] ).chars.to_a
         end
-        @text_view.lines[ @text_view.logical_cursor.y ] = line_format @buffer[ @text_view.logical_cursor.y ].join, @text_view.logical_cursor.y + 1
+        @text_view.lines[ @text_view.logical_cursor.y ] = @buffer[ @text_view.logical_cursor.y ].join
         scroll_right
         @screen.paint
       end

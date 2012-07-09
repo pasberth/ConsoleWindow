@@ -3,7 +3,7 @@ require 'spec_helper'
 
 describe ConsoleWindow::Window do
 
-  let(:window) { described_class.new(width: 80, height: 20) }
+  let(:window) { described_class.new(owner: nil, width: 80, height: 20) }
 
   subject { window }
 

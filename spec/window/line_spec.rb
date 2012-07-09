@@ -3,7 +3,7 @@ require 'spec_helper'
 describe ConsoleWindow::Window::Text::Line do
 
   subject { described_class.new(window) }
-  let(:window) { ConsoleWindow::Window.new(width: 80, height: 20) }
+  let(:window) { ConsoleWindow::Window.new(owner: nil, width: 80, height: 20) }
 
   shared_examples_for "the null line" do
     it { should be_empty }

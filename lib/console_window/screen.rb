@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'curses'
 require 'console_window/container'
 require 'console_window/curses_io'
@@ -12,7 +13,12 @@ module ConsoleWindow
     end
 
     def default_attributes
-      super.merge({ curses_window: Curses.stdscr })
+      super.merge( {
+                     curses_window: Curses.stdscr,
+                     owner: nil,  # Screen は常に最上位のウィンドウなので不要。 nil である前提
+                     width: nil,  # width, height は Curses.stdscr によって決定される
+                     height: nil  # 
+                   })
     end
 
     # ====================

@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe ConsoleWindow::Window do
 
-  let(:owner) { ConsoleWindow::Container.new(width: 80, height: 20) }
+  let(:owner) { ConsoleWindow::Container.new(owner: nil, width: 80, height: 20) }
 
   let(:x) { 20 }
   let(:y) { 10 }

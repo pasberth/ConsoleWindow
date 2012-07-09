@@ -6,14 +6,34 @@ module ConsoleWindow
     require 'console_window/window/text'
     require 'console_window/window/attributes'
 
+    REQUIRED = Object.new
+
     def initialize attributes = {}
       attributes = default_attributes.merge(attributes)
+      raise "Required attribtues (%s) by #{self.class} was not given." % attributes.select{|a,v| REQUIRED == v }.map{|k,v|k}.join(", ") if attributes.each_value.any? { |v| REQUIRED == v }
       attributes.each { |attr, val| send :"#{attr}=", val }
     end
 
     # ====================
     # Attribute Methods
     # ====================
+
+    def default_attributes
+      {
+        text:           Text.new(self, []),
+        location:       Location.new(self, 0, 0),
+        size:           Size.new(nil, nil),
+        x:              0,
+        y:              0,
+        width:          REQUIRED,
+        height:         REQUIRED,
+        position:       Position.new(self, 0, 0),
+        cursor:         Cursor.new(self, 0, 0),
+        scroll:         Scroll.new(self, 0, 0),
+        logical_cursor: LogicalCursor.new(self),
+        owner:          REQUIRED
+      }
+    end
 
     attr_accessor :text
 
@@ -109,23 +129,6 @@ module ConsoleWindow
 
     def screen
       owner.screen
-    end
-
-    def default_attributes
-      {
-        :text => Text.new(self, []),
-        :location => Location.new(self, 0, 0),
-        :size => Size.new(nil, nil),
-        :x => 0,
-        :y => 0,
-        # :width => nil,  # required 
-        # :height => nil, # required
-        :position => Position.new(self, 0, 0),
-        :cursor => Cursor.new(self, 0, 0),
-        :scroll => Scroll.new(self, 0, 0),
-        :logical_cursor => LogicalCursor.new(self)
-        # :owner => Screen.new # required
-      }
     end
 
     def displayed_lines

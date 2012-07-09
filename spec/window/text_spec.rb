@@ -4,7 +4,7 @@ describe ConsoleWindow::Window::Text do
 
   subject { described_class.new(window) }
 
-  let(:window) { ConsoleWindow::Window.new(width: 80, height: 20) }
+  let(:window) { ConsoleWindow::Window.new(owner: nil, width: 80, height: 20) }
 
   describe "#[]" do
 

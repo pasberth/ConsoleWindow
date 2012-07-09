@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe ConsoleWindow::Container do
 
-  subject { ConsoleWindow::Container.new(:width => 80, :height => 20) }
+  subject { ConsoleWindow::Container.new(owner: nil, width: 80, height: 20) }
 
   its(:components) { should have(0).items }
 
@@ -10,14 +10,13 @@ describe ConsoleWindow::Container do
 
     before do
 
-      @main_window = ConsoleWindow::Window.new(:width => 80, :height => 18)
+      @main_window = subject.create_sub_window(80, 18, 0, 0)
       18.times do |i|
         @main_window.lines[i] = '#' * 80
       end
-
-      @info_line = ConsoleWindow::Window.new(width: 80, height: 1, y: 18)
+      @info_line = subject.create_sub_window(80, 1, 0, 18)
       @info_line.lines[0] = '%-80s' % 'Information line'
-      @command_line = ConsoleWindow::Window.new(width: 80, height: 1, y: 19)
+      @command_line = subject.create_sub_window(80, 1, 0, 19)
       @command_line.lines[0] = '%-80s' % 'Command line'
       subject.components << @main_window << @info_line << @command_line
     end

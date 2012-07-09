@@ -178,14 +178,14 @@ describe ConsoleWindow::Window do
 
   describe ConsoleWindow::Window::Cursor do
 
-    let(:window) { ConsoleWindow::Window.new(width: 20, height: 10) }
+    let(:window) { ConsoleWindow::Window.new(owner: nil, width: 20, height: 10) }
     subject { window.cursor }
     it_behaves_like "the movement point"
   end
 
   describe ConsoleWindow::Window::Scroll do
 
-    let(:window) { ConsoleWindow::Window.new(width: 20, height: 10) }
+    let(:window) { ConsoleWindow::Window.new(owner: nil, width: 20, height: 10) }
     subject { window.scroll }
     it_behaves_like "the movement point"
   end

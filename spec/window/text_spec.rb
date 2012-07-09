@@ -176,6 +176,73 @@ A
   
   describe "#as_displayed_string" do
 
+    context "Resizing" do
+
+      before do
+        window.width = 2
+        window.height = 2
+
+        subject[0] = "###"
+        subject[1] = "###"
+        subject[2] = "###"
+      end
+
+      its(:as_string) { should == <<-A }
+###
+###
+###
+A
+
+      its(:as_displayed_string) { should == <<-A }
+##
+##
+A
+
+      example do
+        window.width = 1
+        window.height = 1
+        subject.as_displayed_string.should == "#\n"
+      end
+
+      example do
+        window.width = 3
+        window.height = 3
+        subject.as_displayed_string.should == <<-A
+###
+###
+###
+A
+      end
+
+      example do
+        window.width = 3
+        window.height = 1
+        subject.as_displayed_string.should == <<-A
+###
+A
+      end
+
+      example do
+        window.width = 1
+        window.height = 3
+        subject.as_displayed_string.should == <<-A
+#
+#
+#
+A
+      end
+
+      example do
+        window.width = 5
+        window.height = 5
+        subject.as_displayed_string.should == <<-A
+###
+###
+###
+A
+      end
+    end
+
     context "Scrolling" do
 
       before do

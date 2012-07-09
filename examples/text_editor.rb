@@ -83,20 +83,18 @@ module TextEditor
       elsif File.exist? filename
         if filename != @filename
           @filename = filename
-          @buffer = File.read(@filename).split("\n").map { |l| l.each_char.to_a }
-          @text_view.lines = @buffer.clone
+          @text_view.text = File.read(@filename).split("\n").map { |l| l.each_char.to_a }
           update_lineno
         end
       else
         @filename = filename
-        @buffer = []
-        @text_view.lines = []
+        @text_view.text = []
       end
     end
 
     def update_lineno
-      (@lineno_bar.lines.count .. @text_view.lines.count).each do |i|
-        @lineno_bar.lines[i] = "%3d| " % i
+      (@lineno_bar.text.count .. @text_view.text.count).each do |i|
+        @lineno_bar.text[i] = "%3d| " % i
       end
     end
 
@@ -146,11 +144,11 @@ module TextEditor
         case @cmd_line.gets
         when /^wq/
           @mode = [:quit]
-          File.write(@filename, @buffer.map(&:join).join("\n"))
+          File.write(@filename, @text_view.as_full_text)
         when /^q/
           @mode = [:quit]
         when /^w/
-          File.write(@filename, @buffer.map(&:join).join("\n"))
+          File.write(@filename, @text_view.as_full_text)
         else
         end
       end
@@ -192,26 +190,16 @@ module TextEditor
         normal_mode
       when 127.chr # DEL
         if @text_view.logical_cursor.x > 0
-          (@buffer[ @text_view.logical_cursor.y ] ||= []).
-            delete_at( @text_view.logical_cursor.x - 1)
-            @text_view.lines[ @text_view.logical_cursor.y ] = @buffer[ @text_view.logical_cursor.y ].join
+          @text_view.line.pop
           scroll_left
           @screen.paint
         end
       when "\n"
-        carriage_return
-        @buffer.insert @text_view.logical_cursor.y, []
         @text_view.text << "\n"
+        carriage_return
         @screen.paint
       else
-        if @buffer[ @text_view.logical_cursor.y ]
-          @buffer[ @text_view.logical_cursor.y ].insert( @text_view.logical_cursor.x, char )
-        else
-          @buffer[ @text_view.logical_cursor.y ] =
-            ( "%*s" % [ @text_view.logical_cursor.x,
-                        char ] ).chars.to_a
-        end
-        @text_view.lines[ @text_view.logical_cursor.y ] = @buffer[ @text_view.logical_cursor.y ].join
+        @text_view.line << char
         scroll_right
         @screen.paint
       end

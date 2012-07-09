@@ -13,7 +13,7 @@ module ConsoleWindow
       def initialize window, text = ''
         @window = window
         @lines = case text
-                 when String then text.lines.map { |line| Line.new(line) }
+                 when String then text.lines.map { |line| Line.new(@window, line) }
                  when Array then text
                  when Text then text.map(&:clone)
                  end
@@ -22,7 +22,7 @@ module ConsoleWindow
       def each
         if block_given?
           @lines.reverse_each.drop_while(&:empty?).reverse_each.with_index do |line, i|
-            yield line ? line : @lines[i] = Line.new("\n")
+            yield line ? line : @lines[i] = Line.new(@window, "\n")
           end
         else
           Enumerator.new(self, :each)
@@ -38,7 +38,7 @@ module ConsoleWindow
       def [] n
         case n
         when Integer
-          @lines[n] ||= Line.new
+          @lines[n] ||= Line.new @window
         when Range
           Text.new(@window, @lines[n.begin .. n.end - 1] || [])
         else raise TypeError
@@ -51,6 +51,10 @@ module ConsoleWindow
           @window.position.y += 1 # TODO: replace position#down!
         end
         self
+      end
+
+      def pop
+        @lines.delete_at @window.position.y
       end
 
       def crop start_x, start_y, end_x, end_y
@@ -86,7 +90,8 @@ module ConsoleWindow
 
         include Enumerable
 
-        def initialize line = nil
+        def initialize window, line = nil
+          @window = window
           @null_line = [nil, ''].include? line
           @line = case line
                   when nil, '' then []
@@ -110,14 +115,14 @@ module ConsoleWindow
         def [] val
           case val
           when Range
-            Line.new @line[val.begin .. val.end - 1]
+            Line.new @window, @line[val.begin .. val.end - 1]
           else
             raise NotImplementedError
           end
         end
         
         def []= *args
-          val = Line.new(args.pop)
+          val = Line.new(@window, args.pop)
 
           case args.length
           when 1
@@ -132,6 +137,14 @@ module ConsoleWindow
           else
             raise NotImplementedError
           end
+        end
+
+        def << char
+          @line.insert @window.position.x, char
+        end
+
+        def pop
+          @line.delete_at(@window.position.x)
         end
 
         def empty?

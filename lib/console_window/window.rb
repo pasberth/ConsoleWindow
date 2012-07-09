@@ -17,6 +17,14 @@ module ConsoleWindow
 
     attr_accessor :text
 
+    def line
+      @text[position.y]
+    end
+
+    def line= line
+      @text[position.y] = line
+    end
+
     def text= text
       @text = case text
               when Array then Text.new(self, text)

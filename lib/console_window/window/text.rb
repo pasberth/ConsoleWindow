@@ -72,8 +72,18 @@ module ConsoleWindow
         clone.tap &:paste!.with(*args)
       end
 
+      def displayed_text
+        h = @window.height ? (@window.height + @window.scroll.y) : raise("height is nil. #{@window.inspect}")
+        w = @window.width ? (@window.width + @window.scroll.x) : raise("width is nil. #{@window.inspect}")
+        crop(@window.scroll.x, @window.scroll.y, w, h)
+      end
+
       def as_string
         map(&:as_string).join
+      end
+
+      def as_displayed_string
+        displayed_text.as_string
       end
 
       def clone

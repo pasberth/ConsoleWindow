@@ -46,8 +46,10 @@ module ConsoleWindow
     def paint
       raise NoMethodError unless curses_window
       curses_window.clear
-      curses_window.setpos 0, 0
-      curses_window.addstr as_displayed_text
+      as_displayed_string.each_line.with_index do |str, i| 
+        curses_window.setpos i, 0
+        curses_window.addstr str
+      end
       focus!
       curses_window.refresh
       true
@@ -60,7 +62,7 @@ module ConsoleWindow
     # NOTE: this function is Unicode Only
     def focus!
       cury = cursor.y
-      curx = displayed_lines[cursor.y][0 .. cursor.x].inject(0) do |i, char|
+      curx = displayed_text[cursor.y][0 .. cursor.x].inject(0) do |i, char|
         case char.bytes.count
         when 1 then i + 1
         when 2..4 then i + 2

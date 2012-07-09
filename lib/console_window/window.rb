@@ -136,24 +136,12 @@ module ConsoleWindow
       owner.screen
     end
 
-    def displayed_lines
-      h = height ? (height + scroll.y) : -1
-      w = width ? (width + scroll.x) : -1
-      text.crop(scroll.x, scroll.y, w, h)
-    end
-
-    # ====================
-    # To Text Methods
-    # ====================
-
-    def as_text
+    def as_string
       text.as_string.chomp
     end
 
-    alias as_full_text as_text
-
-    def as_displayed_text
-      displayed_lines.as_string.chomp
+    def as_displayed_string
+      text.as_displayed_string.chomp
     end
 
     # ====================

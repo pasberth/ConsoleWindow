@@ -144,11 +144,11 @@ module TextEditor
         case @cmd_line.gets
         when /^wq/
           @mode = [:quit]
-          File.write(@filename, @text_view.as_full_text)
+          File.write(@filename, @text_view.as_string)
         when /^q/
           @mode = [:quit]
         when /^w/
-          File.write(@filename, @text_view.as_full_text)
+          File.write(@filename, @text_view.as_string)
         else
         end
       end

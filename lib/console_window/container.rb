@@ -15,29 +15,19 @@ module ConsoleWindow
     # To Text Methods
     # ====================
 
-    def displayed_lines
+    def displayed_text
       text = self.text.clone
       components.each do |comp|
-        text.paste!(comp.as_displayed_text, comp.x, comp.y)
+        text.paste!(comp.as_displayed_string, comp.x, comp.y)
       end
-
-      h = height ? (height + scroll.y) : -1
-      w = width ? (width + scroll.x) : -1
-      text.crop(scroll.x, scroll.y, w, h)
+      text.displayed_text
     end
 
-    def as_text
-      text = self.text.clone
-      components.each do |comp|
-        text.paste!(comp.as_displayed_text, comp.x, comp.y)
-      end
-
-      text.as_string.chomp
+    def as_string
+      displayed_text.as_string.chomp
     end
 
-    def as_displayed_text
-      displayed_lines.as_string.chomp
-    end
+    alias as_displayed_string as_string
 
     # ====================
     # Container Methods

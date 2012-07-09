@@ -4,8 +4,13 @@ module ConsoleWindow
   class Window
 
     require 'console_window/window/text'
-    require 'console_window/window/attributes'
     require 'console_window/window/current_line'
+    require 'console_window/window/location'
+    require 'console_window/window/size'
+    require 'console_window/window/position'
+    require 'console_window/window/cursor'
+    require 'console_window/window/scroll'
+    require 'console_window/window/logical_cursor'
 
     REQUIRED = Object.new
 
@@ -24,7 +29,7 @@ module ConsoleWindow
         text:           Text.new(self, []),
         current_line:   CurrentLine.new(self),
         location:       Location.new(self, 0, 0),
-        size:           Size.new(nil, nil),
+        size:           Size.new(self, nil, nil),
         x:              0,
         y:              0,
         width:          REQUIRED,
@@ -69,12 +74,12 @@ module ConsoleWindow
     end
 
     def size
-      @size ||= Size.new
+      @size ||= Size.new(self)
     end
 
     def size= val
       @size = ( case val
-                when Array then Size.new(*val)
+                when Array then Size.new(self, *val)
                 when Size then val
                 else raise TypeError "Can't convert #{val.class} into #{Size}"
                 end )

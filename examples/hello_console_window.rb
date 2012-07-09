@@ -5,7 +5,7 @@ require 'console_window'
 begin
   Curses.init_screen
   window = ConsoleWindow::Screen.new
-  window.lines << "hello world!"
+  window.text << "hello world!"
   window.paint
   Curses.getch
 ensure

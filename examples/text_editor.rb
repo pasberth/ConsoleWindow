@@ -109,7 +109,7 @@ module TextEditor
       prefix = opts[:prefix]
       mode = opts[:mode]
 
-      @info_bar.lines[0] = "#{@filename} [%s] %s%s" % [ mode, prefix, msg ]
+      @info_bar.text[0] = "#{@filename} [%s] %s%s" % [ mode, prefix, msg ]
       @screen.paint
     end
 
@@ -130,7 +130,7 @@ module TextEditor
     end
 
     def normal_command prompt = "% "
-      @cmd_line.lines[0] = prompt
+      @cmd_line.text[0] = prompt
       @cmd_line.cursor.x = prompt.length
       case @text_view.getc
       when 'h' then scroll_left

@@ -49,9 +49,6 @@ module ConsoleWindow
       @text = Text.new(self, text)
     end
 
-    alias lines text
-    alias lines= text=
-
     [ :x,
       :y,
       :absolute_x,

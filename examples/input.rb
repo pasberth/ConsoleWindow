@@ -10,14 +10,12 @@ ConsoleWindow.start do
   screen.components << input_window
   screen.components << display_window
 
-  msg = "will echo. input plz: "
-  input_window.lines[0] = msg
-  input_window.cursor.x = msg.length
+  input_window.text << "will echo. input plz: "
 
   screen.paint
 
   str = input_window.gets
-  display_window.lines[0] = str
+  display_window.text[0] = str
 
   screen.paint
   Curses.getch

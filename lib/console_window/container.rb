@@ -32,11 +32,11 @@ module ConsoleWindow
         text.paste!(comp.as_displayed_text, comp.x, comp.y)
       end
 
-      text.to_s.chomp
+      text.as_string.chomp
     end
 
     def as_displayed_text
-      displayed_lines.to_s.chomp
+      displayed_lines.as_string.chomp
     end
 
     # ====================

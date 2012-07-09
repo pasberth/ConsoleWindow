@@ -190,7 +190,7 @@ module TextEditor
         normal_mode
       when 127.chr # DEL
         if @text_view.logical_cursor.x > 0
-          @text_view.line.pop
+          @text_view.current_line.pop
           scroll_left
           @screen.paint
         end
@@ -199,7 +199,7 @@ module TextEditor
         carriage_return
         @screen.paint
       else
-        @text_view.line << char
+        @text_view.current_line << char
         scroll_right
         @screen.paint
       end

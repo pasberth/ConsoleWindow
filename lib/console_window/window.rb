@@ -5,6 +5,7 @@ module ConsoleWindow
 
     require 'console_window/window/text'
     require 'console_window/window/attributes'
+    require 'console_window/window/current_line'
 
     REQUIRED = Object.new
 
@@ -21,6 +22,7 @@ module ConsoleWindow
     def default_attributes
       {
         text:           Text.new(self, []),
+        current_line:   CurrentLine.new(self),
         location:       Location.new(self, 0, 0),
         size:           Size.new(nil, nil),
         x:              0,
@@ -36,13 +38,14 @@ module ConsoleWindow
     end
 
     attr_accessor :text
+    attr_accessor :current_line
 
-    def line
-      @text[position.y]
-    end
-
-    def line= line
-      @text[position.y] = line
+    def current_line= line
+      case line
+      when CurrentLine then @current_line = line
+      else
+        @text[position.y] = line
+      end
     end
 
     def text= text
@@ -139,13 +142,13 @@ module ConsoleWindow
     # ====================
 
     def as_text
-      text.to_s.chomp
+      text.as_string.chomp
     end
 
     alias as_full_text as_text
 
     def as_displayed_text
-      displayed_lines.to_s.chomp
+      displayed_lines.as_string.chomp
     end
 
     # ====================

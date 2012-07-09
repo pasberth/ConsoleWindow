@@ -16,22 +16,22 @@ describe ConsoleWindow::Window::Text do
 
     example do
       subject[0] = "hello world"
-      subject[0].to_s.should == "hello world\n"
+      subject[0].as_string.should == "hello world\n"
     end
 
     example do
       subject[0] = "hello\nworld"
-      subject[0].to_s.should == "hello\n"
-      subject[1].to_s.should == "world\n"
+      subject[0].as_string.should == "hello\n"
+      subject[1].as_string.should == "world\n"
     end
   end
 
   describe "#<<" do
 
-    example { subject << "hello"; subject.to_s.should == <<-A }
+    example { subject << "hello"; subject.as_string.should == <<-A }
 hello
 A
-    example { subject << "hello" << "world"; subject.to_s.should == <<-A }
+    example { subject << "hello" << "world"; subject.as_string.should == <<-A }
 hello
 world
 A
@@ -39,7 +39,7 @@ A
     it "will insert at window.position.y" do
       window.position.y = 1
       subject << "hello"
-      subject.to_s.should == <<-A
+      subject.as_string.should == <<-A
 
 hello
 A
@@ -57,10 +57,10 @@ A
       example { subject.crop(0, 0, 5, 1).should be_kind_of ConsoleWindow::Window::Text }
     end
 
-    example { subject.crop(0, 0, 5, 1).to_s.should == "first\n" }
-    example { subject.crop(0, 0, 5, 2).to_s.should == "first\nsecon\n" }
-    example { subject.crop(5, 0, 10, 1).to_s.should == " line\n" }
-    example { subject.crop(5, 1, 10, 2).to_s.should == "d lin\n" }
+    example { subject.crop(0, 0, 5, 1).as_string.should == "first\n" }
+    example { subject.crop(0, 0, 5, 2).as_string.should == "first\nsecon\n" }
+    example { subject.crop(5, 0, 10, 1).as_string.should == " line\n" }
+    example { subject.crop(5, 1, 10, 2).as_string.should == "d lin\n" }
   end
 
   describe "#paste" do
@@ -80,26 +80,26 @@ A
 
       example do
         subject.paste("@@@", 0, 0)
-        subject.to_s.should == "###\n###\n###\n"
+        subject.as_string.should == "###\n###\n###\n"
       end
     end
 
-    example { subject.paste("@@@", 0, 0).to_s.should == <<-A }
+    example { subject.paste("@@@", 0, 0).as_string.should == <<-A }
 @@@
 ###
 ###
 A
-    example { subject.paste("@@@", 0, 1).to_s.should == <<-A }
+    example { subject.paste("@@@", 0, 1).as_string.should == <<-A }
 ###
 @@@
 ###
 A
-    example { subject.paste(".\n.\n.", 0, 0).to_s.should == <<-A }
+    example { subject.paste(".\n.\n.", 0, 0).as_string.should == <<-A }
 .##
 .##
 .##
 A
-    example { subject.paste(".\n.\n.", 1, 0).to_s.should == <<-A }
+    example { subject.paste(".\n.\n.", 1, 0).as_string.should == <<-A }
 #.#
 #.#
 #.#

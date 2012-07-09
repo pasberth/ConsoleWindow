@@ -13,7 +13,7 @@ module ConsoleWindow
       def initialize window, text = ''
         @window = window
         @lines = case text
-                 when String then text.lines.map { |line| Line.new(@window, line) }
+                 when String then text.lines.map { |line| Line.new(line) }
                  when Array then text
                  when Text then text.map(&:clone)
                  end
@@ -22,7 +22,7 @@ module ConsoleWindow
       def each
         if block_given?
           @lines.reverse_each.drop_while(&:empty?).reverse_each.with_index do |line, i|
-            yield line ? line : @lines[i] = Line.new(@window, "\n")
+            yield line ? line : @lines[i] = Line.new("\n")
           end
         else
           Enumerator.new(self, :each)
@@ -38,7 +38,7 @@ module ConsoleWindow
       def [] n
         case n
         when Integer
-          @lines[n] ||= Line.new @window
+          @lines[n] ||= Line.new
         when Range
           Text.new(@window, @lines[n.begin .. n.end - 1] || [])
         else raise TypeError
@@ -72,8 +72,8 @@ module ConsoleWindow
         clone.tap &:paste!.with(*args)
       end
 
-      def to_s
-        each.to_a.join
+      def as_string
+        map(&:as_string).join
       end
 
       def clone
@@ -90,8 +90,7 @@ module ConsoleWindow
 
         include Enumerable
 
-        def initialize window, line = nil
-          @window = window
+        def initialize line = nil
           @null_line = [nil, ''].include? line
           @line = case line
                   when nil, '' then []
@@ -115,14 +114,14 @@ module ConsoleWindow
         def [] val
           case val
           when Range
-            Line.new @window, @line[val.begin .. val.end - 1]
+            Line.new @line[val.begin .. val.end - 1]
           else
             raise NotImplementedError
           end
         end
         
         def []= *args
-          val = Line.new(@window, args.pop)
+          val = Line.new(args.pop)
 
           case args.length
           when 1
@@ -139,19 +138,19 @@ module ConsoleWindow
           end
         end
 
-        def << char
-          @line.insert @window.position.x, char
+        def insert x, char
+          @line.insert x, char
         end
 
-        def pop
-          @line.delete_at(@window.position.x)
+        def delete x
+          @line.delete_at x
         end
 
         def empty?
           @null_line && @line.empty?
         end
         
-        def to_s
+        def as_string
           empty? ? '' : each.to_a.join + "\n"
         end
 

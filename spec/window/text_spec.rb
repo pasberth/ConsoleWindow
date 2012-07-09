@@ -84,25 +84,73 @@ A
       end
     end
 
-    example { subject.paste("@@@", 0, 0).as_string.should == <<-A }
-@@@
+    shared_examples_for "an object as a text" do
+
+      example { subject.paste(horizontal_dot_line, 0, 0).as_string.should == <<-A }
+...
 ###
 ###
 A
-    example { subject.paste("@@@", 0, 1).as_string.should == <<-A }
+      example { subject.paste(horizontal_dot_line, 0, 1).as_string.should == <<-A }
 ###
-@@@
+...
 ###
 A
-    example { subject.paste(".\n.\n.", 0, 0).as_string.should == <<-A }
+      example { subject.paste(vertical_dot_line, 0, 0).as_string.should == <<-A }
 .##
 .##
 .##
 A
-    example { subject.paste(".\n.\n.", 1, 0).as_string.should == <<-A }
+      example { subject.paste(vertical_dot_line, 1, 0).as_string.should == <<-A }
 #.#
 #.#
 #.#
 A
+      example { subject.paste(dot_box, 0, 0).as_string.should == <<-A }
+..#
+..#
+###
+A
+      example { subject.paste(dot_box, 1, 0).as_string.should == <<-A }
+#..
+#..
+###
+A
+      example { subject.paste(dot_box, 0, 1).as_string.should == <<-A }
+###
+..#
+..#
+A
+      example { subject.paste(dot_box, 1, 1).as_string.should == <<-A }
+###
+#..
+#..
+A
+      example { subject.paste(dot_box, 2, 2).as_string.should == <<-A }
+###
+###
+##..
+  ..
+A
+      example { subject.paste(dot_box, 3, 3).as_string.should == <<-A }
+###
+###
+###
+   ..
+   ..
+A
+    end
+
+    it_behaves_like "an object as a text" do
+      let(:horizontal_dot_line) { "..." }
+      let(:vertical_dot_line) { ".\n.\n." }
+      let(:dot_box) { "..\n.." }
+    end
+
+    it_behaves_like "an object as a text" do
+      let(:horizontal_dot_line) { described_class.new(window, "...") }
+      let(:vertical_dot_line) { described_class.new(window, ".\n.\n.") }
+      let(:dot_box) { described_class.new(window, "..\n..") }
+    end
   end
 end

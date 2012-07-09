@@ -11,7 +11,6 @@ describe ConsoleWindow::Window do
   describe "the default value of each attritbes." do
 
     its('text.as_string') { should == '' }
-    its(:lines) { pending("#lines は廃止予定") { should == [] } }
     its(:as_text) { should == "" }
     its(:as_displayed_text) { should == "" }
     its(:as_full_text) { should == "" }
@@ -276,83 +275,6 @@ A
         subject.lines << '|a|'
         subject.lines << '*-*'
         subject.lines[1][1] = 'b'
-      end
-    end
-
-    describe "#print_rect" do
-
-      before do
-        subject.lines << "###"
-        subject.lines << "###"
-        subject.lines << "###"
-      end
-      
-      it_behaves_like "general testing" do
-        let(:expecting_full_text) { <<-A.chomp }
-@@#
-@@#
-###
-A
-        let(:expecting_displayed_text) { expecting_full_text }
-
-        before do
-          subject.position.x = 0
-          subject.position.y = 0
-          subject.print_rect "@@\n" +
-                             "@@"
-        end
-      end
-      
-      it_behaves_like "general testing" do
-
-        let(:expecting_full_text) { <<-A.chomp }
-#\@@
-#\@@
-###
-A
-        let(:expecting_displayed_text) { expecting_full_text }
-
-        before do
-          subject.position.x = 1
-          subject.position.y = 0
-          subject.print_rect "@@\n" +
-                             "@@"
-        end
-      end
-    
-      it_behaves_like "general testing" do
-
-        let(:expecting_full_text) { <<-A.chomp }
-###
-@@#
-@@#
-A
-        let(:expecting_displayed_text) { expecting_full_text }
-        before do
-          subject.position.x = 0
-          subject.position.y = 1
-          subject.print_rect "@@\n" +
-                             "@@"
-        end
-      end
-
-      it_behaves_like "general testing" do
-        
-        let(:expecting_full_text) { <<-A.chomp }
-###
-###
-###
-   @@
-   @@
-A
-        let(:expecting_displayed_text) { expecting_full_text }
-
-        before do
-          subject.position.x = 3
-          subject.position.y = 3
-          subject.print_rect "@@\n" +
-                             "@@"
-        end
       end
     end
   end

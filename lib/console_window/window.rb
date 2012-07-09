@@ -157,15 +157,6 @@ module ConsoleWindow
     end
 
     # ====================
-    # Printing Methods
-    # ====================
-    
-    def print_rect text
-      self.text = self.text.paste(text, position.x, position.y)
-      true
-    end
-
-    # ====================
     # Curses Controllers
     # ====================
 

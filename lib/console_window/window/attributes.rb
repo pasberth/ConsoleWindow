@@ -36,11 +36,11 @@ module ConsoleWindow
     end
 
     def right!
-      self.x + 1 < max_x ? (self.x += 1; true) : false
+      self.x < max_x ? (self.x += 1; true) : false
     end
 
     def down!
-      self.y + 1 < max_y ? (self.y += 1; true) : false
+      self.y < max_y ? (self.y += 1; true) : false
     end
   end
 

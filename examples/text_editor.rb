@@ -24,7 +24,7 @@ module TextEditor
 
     def initialize
       @screen = ConsoleWindow::Screen.new
-      @text_view = @screen.create_sub_window(@screen.width, @screen.height - 1, 0, 0)
+      @text_view = @screen.create_sub_window(@screen.width, @screen.height - 2, 0, 0)
       @text_view.cursor.x = text_view_cursor_base_x
       @info_bar = @screen.create_sub_window(@screen.width, 1, 0, @screen.height - 2)
       @cmd_line = @screen.create_sub_window(@screen.width, 1, 0, @screen.height - 1)

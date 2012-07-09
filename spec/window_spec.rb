@@ -11,9 +11,8 @@ describe ConsoleWindow::Window do
   describe "the default value of each attritbes." do
 
     its('text.as_string') { should == '' }
-    its(:as_text) { should == "" }
-    its(:as_displayed_text) { should == "" }
-    its(:as_full_text) { should == "" }
+    its(:as_string) { should == "" }
+    its(:as_displayed_string) { should == "" }
 
     its(:x) { should == 0 }
     its(:y) { should == 0 }

@@ -133,40 +133,22 @@ module TextEditor
     end
 
     def scroll_left
-      if @text_view.cursor.x - text_view_cursor_base_x > 0
-        @text_view.cursor.x -= 1
-      elsif @text_view.scroll.x > 0
-        @text_view.scroll.x -= 1
-      end
+      @text_view.cursor.left! or @text_view.scroll.left!
       @screen.paint
     end
 
     def scroll_down
-      if (@text_view.logical_cursor.y) >= @buffer.length
-      elsif @text_view.cursor.y < text_view_height
-        @text_view.cursor.y += 1
-      else
-        @text_view.scroll.y += 1
-      end
+      @text_view.cursor.down! or @text_view.scroll.down!
       @screen.paint
     end
 
     def scroll_up
-      if @text_view.cursor.y > 0
-        @text_view.cursor.y -= 1
-      elsif @text_view.scroll.y > 0
-        @text_view.scroll.y -= 1
-      end
+      @text_view.cursor.up! or @text_view.scroll.up!
       @screen.paint
     end
 
     def scroll_right
-      if (@text_view.logical_cursor.x - text_view_cursor_base_x) >= (@buffer[ @text_view.logical_cursor.y ] || []).length
-      elsif @text_view.logical_cursor.x + text_view_cursor_base_x < text_view_width
-        @text_view.cursor.x += 1
-      else
-        @text_view.scroll.x += 1
-      end
+      @text_view.cursor.right! or @text_view.scroll.right!
       @screen.paint
     end
 

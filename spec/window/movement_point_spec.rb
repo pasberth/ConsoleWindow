@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 require 'spec_helper'
 
 describe ConsoleWindow::Window do
@@ -8,6 +10,30 @@ describe ConsoleWindow::Window do
     its(:max_y) { should_not be_nil }
     its(:min_x) { should_not be_nil }
     its(:min_y) { should_not be_nil }
+
+    describe "#x" do
+
+      context "out of range." do
+
+        example do
+          pending "他に影響が出過ぎる"
+          subject.x = subject.max_x + 1
+          subject.x.should == subject.max_x
+        end
+      end
+    end
+
+    describe "#y" do
+
+      context "out of range." do
+
+        example do
+          pending "他に影響が出過ぎる"
+          subject.y = subject.max_y + 1
+          subject.y.should == subject.max_y
+        end
+      end
+    end
 
     describe "#up!" do
 

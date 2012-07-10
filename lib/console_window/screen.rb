@@ -57,8 +57,8 @@ module ConsoleWindow
         curses_window.setpos i, 0
         curses_window.addstr str
       end
-      cursor.y = @active_components.focused_window.cursor.absolute_y
-      cursor.x = @active_components.focused_window.cursor.absolute_x
+      # cursor.y = @active_components.focused_window.cursor.absolute_y
+      # cursor.x = @active_components.focused_window.cursor.absolute_x
       focus_cursor!
       curses_window.refresh
       true
@@ -74,11 +74,10 @@ module ConsoleWindow
       while @active_components.focused_window
         paint
         id = @active_components.frame_id
-        @active_components.focused_window.frames.before_hooks(id).each &:call
-        paint
-        @active_components.focused_window.frames.frame(id).call
-        paint
-        @active_components.focused_window.frames.after_hooks(id).each &:call
+        window = @active_components.focused_window
+        window.frames.before_hooks(id).each &:call
+        window.frames.frame(id).call
+        window.frames.after_hooks(id).each &:call
       end
 
     ensure
@@ -99,12 +98,12 @@ module ConsoleWindow
     end
 
     def getc
-      focus_cursor!
+      paint
       curses_io.getc
     end
 
     def gets sep = $/
-      focus_cursor!
+      paint
       curses_io.gets(sep)
     end
   end

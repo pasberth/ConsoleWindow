@@ -14,7 +14,7 @@ filename = ARGV[0]
 include ConsoleWindow
 
 screen = Screen.new
-editor = screen.create_sub(TextEditor, 80, 20, 0, 0)
+editor = screen.create_sub(TextEditor, 80, 18, 0, 0)
 
 if File.exist? filename
   editor.text = File.read(filename)

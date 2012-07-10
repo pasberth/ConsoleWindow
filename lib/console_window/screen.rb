@@ -60,13 +60,15 @@ module ConsoleWindow
       # cursor.y = @active_components.focused_window.cursor.absolute_y
       # cursor.x = @active_components.focused_window.cursor.absolute_x
       focus_cursor!
+      curses_window.addstr(curses_io.gets_buf.join) # echo. TODO: gets_buf のもっと良い名前
       curses_window.refresh
       true
     end
 
     def activate
       Curses.init_screen
-      Curses.noecho
+      Curses.timeout = 0  # NON-BLOCKING
+      Curses.noecho       # NO-ECHO
 
       @curses_window = Curses.stdscr
       @curses_io = CursesIO.new(curses_window)
@@ -78,6 +80,7 @@ module ConsoleWindow
         window.frames.before_hooks(id).each &:call
         window.frames.frame(id).call
         window.frames.after_hooks(id).each &:call
+        components.each { |comp| comp.frames.backgrounds.each { |frame, opts| frame.call } }
       end
 
     ensure
@@ -98,12 +101,10 @@ module ConsoleWindow
     end
 
     def getc
-      paint
       curses_io.getc
     end
 
     def gets sep = $/
-      paint
       curses_io.gets(sep)
     end
   end

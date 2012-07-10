@@ -12,6 +12,7 @@ module ConsoleWindow
         position.y = logical_cursor.y
 
         case c = getc
+        when nil # timeout
         when 27.chr  # ESC
           unfocus!
         when 127.chr # DEL

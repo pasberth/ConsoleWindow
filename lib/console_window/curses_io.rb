@@ -6,8 +6,12 @@ module ConsoleWindow
 
     include Curses::Key
 
+    attr_reader :gets_buf # TODO: 
+
     def initialize curses_window
       @curses_window = curses_window
+      @getc_buf = []
+      @gets_buf = []
       @ungetc_buf = []
     end
 
@@ -35,7 +39,7 @@ module ConsoleWindow
       while true
         case c = @curses_window.getch
         when nil
-          return
+          return  # when timeout.
         # TODO: Curses::Key::*** が返ってきたとき
         # when RESIZE
         #  next
@@ -72,32 +76,35 @@ module ConsoleWindow
     end
 
     def gets sep = $/
-      # Curses.noecho
-      ret = [].tap do |ipt|
-        begin
-          case c = getc
-          when 127.chr  # DEL
-            delc = ipt.pop or next
-            case delc.bytes.count
-            when 1
-              @curses_window.setpos(@curses_window.cury, @curses_window.curx - 1)
-              @curses_window.delch
-            when 2..4
-              2.times do  # 多バイト文字。とりあえず決めうちでカーソル2つ分削除。
-                @curses_window.setpos(@curses_window.cury, @curses_window.curx - 1)
-                @curses_window.delch
-              end
-            else
-              abort
-            end
-          else
-            c and @curses_window.addstr(c) # echo character. (if Curses.noecho called.)
-            ipt << c
-          end
-        end while ipt.empty? or ipt.last and ipt.last != sep
-      end
+      begin
+        case c = getc
+        when nil then break # timeout
+        when 127.chr  # DEL
+          delc = @gets_buf.pop or next
+#          case delc.bytes.count
+#          when 1
+#            @curses_window.setpos(@curses_window.cury, @curses_window.curx - 1)
+#            @curses_window.delch
+#          when 2..4
+#            2.times do  # 多バイト文字。とりあえず決めうちでカーソル2つ分削除。
+#              @curses_window.setpos(@curses_window.cury, @curses_window.curx - 1)
+#              @curses_window.delch
+#            end
+#          else
+#            fail
+#          end
+        else
+          @gets_buf << c
+        end
+      end while @gets_buf.last != sep
 
-      ret.none? ? nil : ret.join
+      if @gets_buf.none?
+        nil
+      elsif @gets_buf.last == sep
+        @gets_buf.join.tap do
+          @gets_buf.clear
+        end
+      end
     end
   end
 end

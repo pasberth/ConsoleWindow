@@ -12,11 +12,13 @@ screen.components << display_window
 input_window.text << "will echo. input plz: "
 
 input_window.frames.on :main do
-  s = input_window.gets
-  display_window.text[0] = s
-  screen.paint
-  Curses.getch
-  input_window.unfocus!
+  case s = input_window.gets
+  when nil
+  when /^exit/
+    input_window.unfocus!
+  else
+    display_window.text[0] = s
+  end
 end
 
 input_window.focus!

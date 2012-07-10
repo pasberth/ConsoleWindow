@@ -9,7 +9,8 @@ module ConsoleWindow
         @window = window
         @frame_procs = {}
         @frame_before_hooks = Hash.new { |hooks, frame_id| hooks[frame_id] = [] }
-        @frame_after_hooks = Hash.new { |hooks, frame_id| hooks[frame_id] = [] }        
+        @frame_after_hooks = Hash.new { |hooks, frame_id| hooks[frame_id] = [] }
+        @backgrounds = []
       end
 
       def frame id
@@ -22,6 +23,10 @@ module ConsoleWindow
 
       def after_hooks id
         @frame_after_hooks[id.to_sym]
+      end
+
+      def backgrounds
+        @backgrounds
       end
 
       def on frame_id = :main, &block
@@ -37,6 +42,10 @@ module ConsoleWindow
       def after frame_id, &block
         after_hooks(frame_id) << block
         true
+      end
+
+      def background options = {}, &block
+        @backgrounds << [block, options]
       end
     end
   end

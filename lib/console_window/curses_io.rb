@@ -8,11 +8,17 @@ module ConsoleWindow
 
     def initialize curses_window
       @curses_window = curses_window
+      @ungetc_buf = []
     end
 
     def write text
       @curses_window.addstr(text)
       true
+    end
+
+    def ungetc char
+      @ungetc_buf << char
+      nil
     end
 
     # ====================
@@ -21,6 +27,8 @@ module ConsoleWindow
 
     # NOTE: this function is Unicode Only
     def getc
+      return @ungetc_buf.pop unless @ungetc_buf.empty?
+
       bytes = nil
       buf = []
 

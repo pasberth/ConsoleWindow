@@ -72,4 +72,30 @@ describe ConsoleWindow::CursesIO do
       let(:expecting_lines) { ["abc\n", "def", nil] }
     end
   end
+
+  describe "#ungetc" do
+
+    let(:curses_window_mock) { CursesWindowMock.new(text: 'abc') }
+    subject { described_class.new(curses_window_mock) }
+
+    example do
+      subject.ungetc 'd'
+      subject.getc.should == 'd'
+      subject.getc.should == 'a'
+    end
+
+    example do
+      subject.ungetc 'd'
+      subject.ungetc 'e'
+      subject.getc.should == 'e'
+      subject.getc.should == 'd'
+      subject.getc.should == 'a'
+    end
+
+    example do
+      subject.ungetc 'あ'
+      subject.getc.should == 'あ'
+      subject.getc.should == 'a'
+    end
+  end
 end

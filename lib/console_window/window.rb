@@ -11,6 +11,7 @@ module ConsoleWindow
     require 'console_window/window/cursor'
     require 'console_window/window/scroll'
     require 'console_window/window/logical_cursor'
+    require 'console_window/window/frames'
 
     REQUIRED = Object.new
 
@@ -38,6 +39,7 @@ module ConsoleWindow
         cursor:         Cursor.new(self, 0, 0),
         scroll:         Scroll.new(self, 0, 0),
         logical_cursor: LogicalCursor.new(self),
+        frames:         Frames.new(self),
         owner:          REQUIRED
       }
     end
@@ -130,6 +132,7 @@ module ConsoleWindow
       @logical_cursor ? raise(NoMethodError) : @logical_cursor = val
     end
 
+    attr_accessor :frames
     attr_accessor :owner
 
     def screen
@@ -148,20 +151,19 @@ module ConsoleWindow
     # Curses Controllers
     # ====================
 
-    def focus!
-      screen.cursor.x = cursor.absolute_x
-      screen.cursor.y = cursor.absolute_y
-      screen.focus!
-      true
+    def unfocus! frame_id = :main
+      screen.active_components.unfocus self, frame_id
+    end
+
+    def focus! frame_id = :main
+      screen.active_components.focus self, frame_id
     end
 
     def getc
-      focus!
       screen.getc
     end
 
     def gets
-      focus!
       screen.gets
     end
   end

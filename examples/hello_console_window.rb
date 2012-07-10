@@ -2,12 +2,11 @@
 $:.unshift File.dirname(__FILE__) + '/../lib'
 require 'console_window'
 
-begin
-  Curses.init_screen
-  window = ConsoleWindow::Screen.new
-  window.text << "hello world!"
-  window.paint
-  Curses.getch
-ensure
-  Curses.close_screen
+screen = ConsoleWindow::Screen.new
+screen.text << "hello world"
+screen.frames.on :main do
+  screen.getc
+  screen.unfocus!
 end
+screen.focus!
+screen.activate

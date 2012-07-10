@@ -5,10 +5,12 @@ module ConsoleWindow
 
   class Container < Window
 
+    require 'console_window/container/components'
+
     attr_accessor :components
 
     def default_attributes
-      super.merge({ :components => [] })
+      super.merge({ :components => Components.new(self, []) })
     end
 
     # ====================

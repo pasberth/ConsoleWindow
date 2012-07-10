@@ -4,6 +4,8 @@ module ConsoleWindow
 
   class CursesIO
 
+    include Curses::Key
+
     def initialize curses_window
       @curses_window = curses_window
     end
@@ -26,6 +28,9 @@ module ConsoleWindow
         case c = @curses_window.getch
         when nil
           return
+        # TODO: Curses::Key::*** が返ってきたとき
+        # when RESIZE
+        #  next
         when Integer
           buf << c
         when String then

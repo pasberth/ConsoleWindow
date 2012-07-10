@@ -7,19 +7,26 @@ module ConsoleWindow
 
   class Screen < Container
 
+    require 'console_window/screen/active_components'
+
     def initialize *args, &block
       super
-      @curses_io = CursesIO.new(curses_window)
+      # オブジェクトを作った時点では Curses.stdscr を呼ばない。 #activate 呼び出しで初めて呼ぶ
+      # @curses_window = Curses.stdscr
+      # @curses_io = CursesIO.new(curses_window)
     end
 
     def default_attributes
       super.merge( {
-                     curses_window: Curses.stdscr,
+                     # curses_window: Curses.stdscr,
                      owner: nil,  # Screen は常に最上位のウィンドウなので不要。 nil である前提
                      width: nil,  # width, height は Curses.stdscr によって決定される
-                     height: nil  # 
+                     height: nil, # 
+                     active_components: ActiveComponents.new(self, [])
                    })
     end
+
+    attr_accessor :active_components
 
     # ====================
     # For the Curses Window Methods
@@ -50,17 +57,35 @@ module ConsoleWindow
         curses_window.setpos i, 0
         curses_window.addstr str
       end
-      focus!
+      focus_cursor!
       curses_window.refresh
       true
     end
 
-    # ====================
-    # Input 
-    # ====================
+    def activate
+      Curses.init_screen
+      Curses.noecho
 
-    # NOTE: this function is Unicode Only
-    def focus!
+      @curses_window = Curses.stdscr
+      @curses_io = CursesIO.new(curses_window)
+
+      while @active_components.focused_window
+        paint
+        id = @active_components.frame_id
+        @active_components.focused_window.frames.before_hooks(id).each &:call
+        paint
+        @active_components.focused_window.frames.frame(id).call
+        paint
+        @active_components.focused_window.frames.after_hooks(id).each &:call
+      end
+
+    ensure
+      Curses.close_screen
+    end
+
+    def focus_cursor!
+      cursor.y = @active_components.focused_window.cursor.absolute_y
+      cursor.x = @active_components.focused_window.cursor.absolute_x
       cury = cursor.y
       curx = displayed_text[cursor.y][0 .. cursor.x].inject(0) do |i, char|
         case char.bytes.count
@@ -74,12 +99,12 @@ module ConsoleWindow
     end
 
     def getc
-      focus!
+      focus_cursor!
       curses_io.getc
     end
 
     def gets sep = $/
-      focus!
+      focus_cursor!
       curses_io.gets(sep)
     end
   end

@@ -21,7 +21,7 @@ module ConsoleWindow
 
       def each
         if block_given?
-          @lines.reverse_each.drop_while(&:empty?).reverse_each.with_index do |line, i|
+          @lines.reverse_each.drop_while{|a| a.nil? or a.empty? }.reverse_each.with_index do |line, i|
             yield line ? line : @lines[i] = Line.new("\n")
           end
         else

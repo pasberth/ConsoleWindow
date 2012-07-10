@@ -75,18 +75,6 @@ module ConsoleWindow
       A
     end
 
-    def size
-      @size ||= Size.new(self)
-    end
-
-    def size= val
-      @size = ( case val
-                when Array then Size.new(self, *val)
-                when Size then val
-                else raise TypeError "Can't convert #{val.class} into #{Size}"
-                end )
-    end
-
     [:width, :height].each do |a|
       class_eval(<<-A)
         def #{a}            # def width
@@ -100,6 +88,7 @@ module ConsoleWindow
     end
 
     [ :location, :Location,
+      :size, :Size,
       :position, :Position,
       :cursor,   :Cursor,
       :scroll,   :Scroll
@@ -107,7 +96,9 @@ module ConsoleWindow
         
       class_eval(<<-DEFINE)
 
-          attr_reader :#{attr_name}
+          def #{attr_name}
+            @#{attr_name} ||= #{class_name}.new(self)
+          end
 
           def #{attr_name}= val
             @#{attr_name} = ( case val

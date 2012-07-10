@@ -57,6 +57,8 @@ module ConsoleWindow
         curses_window.setpos i, 0
         curses_window.addstr str
       end
+      cursor.y = @active_components.focused_window.cursor.absolute_y
+      cursor.x = @active_components.focused_window.cursor.absolute_x
       focus_cursor!
       curses_window.refresh
       true
@@ -84,8 +86,6 @@ module ConsoleWindow
     end
 
     def focus_cursor!
-      cursor.y = @active_components.focused_window.cursor.absolute_y
-      cursor.x = @active_components.focused_window.cursor.absolute_x
       cury = cursor.y
       curx = displayed_text[cursor.y][0 .. cursor.x].inject(0) do |i, char|
         case char.bytes.count

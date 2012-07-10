@@ -36,8 +36,8 @@ cmd_line.frames.before :command do
 end
 
 cmd_line.frames.on :main do
-  case cmd_line.getc
-  when 'h' then editor.cursor.left! || editor.scroll.right!
+  case editor.getc
+  when 'h' then editor.cursor.left! || editor.scroll.left!
   when 'j' then editor.cursor.down! || editor.scroll.down!
   when 'k' then editor.cursor.up! || editor.scroll.up!
   when 'l' then editor.cursor.right! || editor.scroll.right!

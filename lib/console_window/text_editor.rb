@@ -20,9 +20,11 @@ module ConsoleWindow
             current_line.pop
           end
         when "\n"
-          scroll.down!
+          cursor.down! or scroll.down!
           cursor.x = 0
           scroll.x = 0
+          position.x = logical_cursor.x
+          position.y = logical_cursor.y
           text << "\n"
         else
           current_line << c

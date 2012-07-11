@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'console_window'
 
 module ConsoleWindow
@@ -13,6 +14,10 @@ module ConsoleWindow
 
         case c = getc
         when nil # timeout
+        when Curses::Key::RIGHT then cursor.right! or scroll.right!
+        when Curses::Key::LEFT then cursor.left! or scroll.left!
+        when Curses::Key::UP then cursor.up! or scroll.up!
+        when Curses::Key::DOWN then cursor.down! or scroll.down!
         when 27.chr  # ESC
           unfocus!
         when 127.chr # DEL
@@ -26,7 +31,7 @@ module ConsoleWindow
           scroll.x = 0
           position.x = logical_cursor.x
           position.y = logical_cursor.y
-          text << "\n"
+          text << "\n" # TODO:  挿入の位置がおかしい。 Text#<< を修正する？
         else
           current_line << c
           cursor.right! or scroll.right!

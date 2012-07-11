@@ -37,10 +37,10 @@ end
 
 cmd_line.frames.on :main do
   case editor.getc
-  when 'h' then editor.cursor.left! || editor.scroll.left!
-  when 'j' then editor.cursor.down! || editor.scroll.down!
-  when 'k' then editor.cursor.up! || editor.scroll.up!
-  when 'l' then editor.cursor.right! || editor.scroll.right!
+  when 'h', Curses::Key::LEFT  then editor.cursor.left! || editor.scroll.left!
+  when 'j', Curses::Key::DOWN  then editor.cursor.down! || editor.scroll.down!
+  when 'k', Curses::Key::UP    then editor.cursor.up! || editor.scroll.up!
+  when 'l', Curses::Key::RIGHT then editor.cursor.right! || editor.scroll.right!
   when 'i' then editor.focus!
   when ':' then cmd_line.focus!(:command)
   end

@@ -40,9 +40,6 @@ module ConsoleWindow
         case c = @curses_window.getch
         when nil
           return  # when timeout.
-        # TODO: Curses::Key::*** が返ってきたとき
-        # when RESIZE
-        #  next
         when Integer
           buf << c
         when String then
@@ -51,7 +48,10 @@ module ConsoleWindow
 
         case buf.length
         when 1
-          if 0xF8 & buf.first == 0xF0 # 4 bytes character
+          if  256 < buf.first            # Curses の制御文字。 Curses::Key::*** 
+            # TODO: とりあえずそのまま返すがどうする?
+            return buf.pop
+          elsif 0xF8 & buf.first == 0xF0 # 4 bytes character
             bytes = 4
           elsif 0xF0 & buf.first == 0xE0 # 3 bytes character
             bytes = 3

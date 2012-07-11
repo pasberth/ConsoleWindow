@@ -67,8 +67,9 @@ module ConsoleWindow
       Curses.init_screen
       Curses.timeout = 0  # NON-BLOCKING
       Curses.noecho       # NO-ECHO
-
       @curses_window = Curses.stdscr
+      @curses_window.keypad(true) # 
+
       @curses_io = CursesIO.new(curses_window)
 
       before_id = nil
@@ -120,7 +121,12 @@ module ConsoleWindow
     end
 
     def getc
-      curses_io.getc
+      case c = curses_io.getc
+      when Curses::Key::RESIZE # TODO
+        raise NotImplementedError
+      else
+        c
+      end
     end
 
     def gets sep = $/

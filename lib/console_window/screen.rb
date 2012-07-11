@@ -57,8 +57,6 @@ module ConsoleWindow
         curses_window.setpos i, 0
         curses_window.addstr str
       end
-      # cursor.y = @active_components.focused_window.cursor.absolute_y
-      # cursor.x = @active_components.focused_window.cursor.absolute_x
       focus_cursor!
       curses_window.addstr(curses_io.gets_buf.join) # echo. TODO: gets_buf のもっと良い名前
       curses_window.refresh
@@ -73,14 +71,35 @@ module ConsoleWindow
       @curses_window = Curses.stdscr
       @curses_io = CursesIO.new(curses_window)
 
+      before_id = nil
+      before_window = nil
+
       while @active_components.focused_window
-        paint
         id = @active_components.frame_id
         window = @active_components.focused_window
-        window.frames.before_hooks(id).each &:call
+
+        # フォーカスが移動した瞬間の処理
+        # 処理順:
+        # in frame(A) -> before_hooks(A) -> frame(A)-loop -> break frame(A)
+        # -> in frame(B) -> after_hooks(A) -> frame(B)-loop -> break frame(B)
+        # -> ...
+        # before や after 内でフォーカスを変えたら、
+        # frame-loop は一度もしないが before と after は必ず呼ばれる
+
+        if window != before_window or id != before_id
+          before_window.frames.after_hooks(before_id).each &:call if before_window
+          window.frames.before_hooks(id).each &:call 
+          before_window = window
+          before_id = id
+          next # before や after 内でフォーカスが変えられた場合、frame(id) は呼ばれない
+        end
+
         window.frames.frame(id).call
-        window.frames.after_hooks(id).each &:call
+
         components.each { |comp| comp.frames.backgrounds.each { |frame, opts| frame.call } }
+        sleep(0.02)
+
+        paint
       end
 
     ensure

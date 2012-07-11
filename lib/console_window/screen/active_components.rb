@@ -28,7 +28,7 @@ module ConsoleWindow
       end
 
       def unfocus comp, frame_id
-        return false if focused_window != comp or frame_id != frame_id
+        return false if focused_window != comp or self.frame_id != frame_id
         @list.pop
         focus!
         true

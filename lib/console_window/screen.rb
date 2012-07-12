@@ -77,7 +77,7 @@ module ConsoleWindow
       before_id = nil
       before_window = nil
 
-      while @active_components.focused_window
+      begin
         begin_time = Time.now
 
         id = @active_components.frame_id
@@ -91,15 +91,17 @@ module ConsoleWindow
         # before や after 内でフォーカスを変えたら、
         # frame-loop は一度もしないが before と after は必ず呼ばれる
 
-        raise "tried to focus the frame '#{id}' not defined." unless window.frames.frame(id)
-
         if window != before_window or id != before_id
           before_window.frames.after_hooks(before_id).each &:call if before_window
-          window.frames.before_hooks(id).each &:call 
+          window.frames.before_hooks(id).each &:call  if window
           before_window = window
           before_id = id
           next # before や after 内でフォーカスが変えられた場合、frame(id) は呼ばれない
         end
+
+        break unless window
+
+        raise "tried to focus the frame '#{id}' not defined." unless window.frames.frame(id)
 
         window.frames.frame(id).call
 
@@ -114,7 +116,7 @@ module ConsoleWindow
         end
 
         paint
-      end
+      end while window
 
     ensure
       @curses.close_screen

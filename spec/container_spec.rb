@@ -6,6 +6,14 @@ describe ConsoleWindow::Container do
 
   its(:components) { should have(0).items }
 
+  describe "add a container" do
+
+    before do
+      @container = subject.create_sub(ConsoleWindow::Container, 80, 18, 0, 0)
+      subject.components << @container
+    end
+  end
+
   describe "add windows" do
 
     before do

@@ -87,6 +87,8 @@ module ConsoleWindow
         # before や after 内でフォーカスを変えたら、
         # frame-loop は一度もしないが before と after は必ず呼ばれる
 
+        raise "tried to focus the frame '#{id}' not defined." unless window.frames.frame(id)
+
         if window != before_window or id != before_id
           before_window.frames.after_hooks(before_id).each &:call if before_window
           window.frames.before_hooks(id).each &:call 

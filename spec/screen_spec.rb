@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'spec_helper'
 
 describe ConsoleWindow::Screen do
@@ -42,6 +43,21 @@ describe ConsoleWindow::Screen do
 
     it "should use keypad." do
       stdscr_mock.should_receive(:keypad).with(true)
+    end
+  end
+
+  describe "#getc" do
+
+    let(:curses_window_mock) { CursesWindowMock.new(input_text: "あいう") }
+    let(:input) { ConsoleWindow::CursesIO.new(curses_window_mock) }
+    let(:screen) { ConsoleWindow::Screen.new(curses: curses_mock, curses_io: input) }
+    subject { screen } 
+
+    example do
+      subject.getc.should == "あ"
+      subject.getc.should == "い"
+      subject.getc.should == "う"
+      subject.getc.should be_nil
     end
   end
 end

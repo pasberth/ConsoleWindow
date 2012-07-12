@@ -21,8 +21,16 @@ module ConsoleWindow
         @list.last ? @list.last[1] : nil
       end
 
-      def focus comp, frame_id
-        @list << [comp, frame_id.to_sym]
+      def frame_args
+        @list.last ? @list.last[2] : nil
+      end
+
+      def frame_block
+        @list.last ? @list.last[3] : nil
+      end
+
+      def focus comp, frame_id, *args, &block
+        @list << [comp, frame_id.to_sym, args, block]
         focus!
         true
       end

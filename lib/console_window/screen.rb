@@ -80,8 +80,10 @@ module ConsoleWindow
       begin
         begin_time = Time.now
 
-        id = @active_components.frame_id
         window = @active_components.focused_window
+        id     = @active_components.frame_id
+        args   = @active_components.frame_args
+        block  = @active_components.frame_block
 
         # フォーカスが移動した瞬間の処理
         # 処理順:
@@ -103,7 +105,7 @@ module ConsoleWindow
 
         raise "tried to focus the frame '#{id}' not defined." unless window.frames.frame(id)
 
-        window.frames.frame(id).call
+        window.frames.frame(id).call(*args, &block)
 
         components.each { |comp| comp.frames.backgrounds.each { |frame, opts| frame.call } }
 

@@ -78,6 +78,8 @@ module ConsoleWindow
       before_window = nil
 
       while @active_components.focused_window
+        begin_time = Time.now
+
         id = @active_components.frame_id
         window = @active_components.focused_window
 
@@ -102,7 +104,14 @@ module ConsoleWindow
         window.frames.frame(id).call
 
         components.each { |comp| comp.frames.backgrounds.each { |frame, opts| frame.call } }
-        sleep(0.02)
+
+        end_time = Time.now
+
+        # ちょうど0.02秒待機する
+        # TODO: 良い名前を見つけて変数にする
+        if 0 < (s = 0.02 - (end_time - begin_time))
+          sleep(s)
+        end
 
         paint
       end

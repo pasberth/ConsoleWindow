@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 module ConsoleWindow
 
@@ -36,7 +37,15 @@ module ConsoleWindow
       end
 
       def unfocus group, id
-        return false if self.frame_group != group or self.frame_id != id
+        return false if self.frame_group != group
+        # group(a):main
+        # group(a):command
+        # group(a):foo .. のようなフォーカスで unfocus(a, :main) なら :main までアンフォーカスする
+
+        # TODO: この実装だと after が呼ばれない。
+        while self.frame_id != id
+          @list.pop
+        end
         @list.pop
         focus!
         true

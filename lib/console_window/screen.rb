@@ -75,12 +75,12 @@ module ConsoleWindow
       @curses_io = CursesIO.new(curses_window)
 
       before_id = nil
-      before_window = nil
+      before_group = nil
 
       begin
         begin_time = Time.now
 
-        window = @active_components.focused_window
+        group  = @active_components.frame_group
         id     = @active_components.frame_id
         args   = @active_components.frame_args
         block  = @active_components.frame_block
@@ -93,20 +93,21 @@ module ConsoleWindow
         # before や after 内でフォーカスを変えたら、
         # frame-loop は一度もしないが before と after は必ず呼ばれる
 
-        if window != before_window or id != before_id
-          before_window.frames.after_hooks(before_id).each &:call if before_window
-          window.frames.before_hooks(id).each &:call  if window
-          before_window = window
+        if group != before_group or id != before_id
+          before_group.after_hooks(before_id).each &:call if before_group
+          group.before_hooks(id).each &:call  if group
+          before_group = group
           before_id = id
           next # before や after 内でフォーカスが変えられた場合、frame(id) は呼ばれない
         end
 
-        break unless window
+        break unless group
 
-        raise "tried to focus the frame '#{id}' not defined." unless window.frames.frame(id)
+        raise "tried to focus the frame '#{id}' not defined." unless group.frame(id)
 
-        window.frames.frame(id).call(*args, &block)
+        group.frame(id).call(*args, &block)
 
+        # TODO: deep calling
         components.each { |comp| comp.frames.backgrounds.each { |frame, opts| frame.call } }
 
         end_time = Time.now
@@ -118,7 +119,7 @@ module ConsoleWindow
         end
 
         paint
-      end while window
+      end while group
 
     ensure
       @curses.close_screen

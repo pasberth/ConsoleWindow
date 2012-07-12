@@ -5,6 +5,8 @@ module ConsoleWindow
 
     class Frames
 
+      attr_accessor :window
+
       def initialize window
         @window = window
         @frame_procs = {}
@@ -44,8 +46,29 @@ module ConsoleWindow
         true
       end
 
+      def group frame_id
+        Frames.new(@window).tap do |group|
+          @frame_procs[frame_id.to_sym] ?
+            raise("The frame id #{@window.class}->#{frame_id} was reserved.") :
+            @frame_procs[frame_id.to_sym] = group
+          yield group if block_given?
+        end
+      end
+
       def background options = {}, &block
         @backgrounds << [block, options]
+      end
+
+      def unfocus! frame_id = :main, *args, &block
+        @window.screen.active_components.unfocus(self, frame_id, *args, &block)
+      end
+
+      def focus! frame_id = :main, *args, &block
+        @window.screen.active_components.focus(self, frame_id, *args, &block)
+      end
+
+      def call *args, &block
+        frame(:main).call(*args, &block)
       end
     end
   end

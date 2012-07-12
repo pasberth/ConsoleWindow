@@ -142,12 +142,12 @@ module ConsoleWindow
     # Curses Controllers
     # ====================
 
-    def unfocus! frame_id = :main, *args, &block
-      screen.active_components.unfocus(self, frame_id, *args, &block)
+    def focus! *args, &block
+      frames.focus! *args, &block
     end
 
-    def focus! frame_id = :main, *args, &block
-      screen.active_components.focus(self, frame_id, *args, &block)
+    def unfocus! *args, &block
+      frames.unfocus! *args, &block
     end
 
     def getc

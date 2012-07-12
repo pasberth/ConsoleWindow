@@ -13,7 +13,7 @@ module ConsoleWindow
         @list = list
       end
 
-      def focused_window
+      def frame_group
         @list.last ? @list.last[0] : nil
       end
 
@@ -29,14 +29,14 @@ module ConsoleWindow
         @list.last ? @list.last[3] : nil
       end
 
-      def focus comp, frame_id, *args, &block
-        @list << [comp, frame_id.to_sym, args, block]
+      def focus group, id, *args, &block
+        @list << [group, id, args, block]
         focus!
         true
       end
 
-      def unfocus comp, frame_id
-        return false if focused_window != comp or self.frame_id != frame_id
+      def unfocus group, id
+        return false if self.frame_group != group or self.frame_id != id
         @list.pop
         focus!
         true
@@ -46,8 +46,8 @@ module ConsoleWindow
 
         def focus!
           return if @list.empty?
-          @screen.cursor.x = focused_window.cursor.absolute_x
-          @screen.cursor.y = focused_window.cursor.absolute_y
+          @screen.cursor.x = frame_group.window.cursor.absolute_x
+          @screen.cursor.y = frame_group.window.cursor.absolute_y
         end
     end
   end

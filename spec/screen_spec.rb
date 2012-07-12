@@ -60,4 +60,56 @@ describe ConsoleWindow::Screen do
       subject.getc.should be_nil
     end
   end
+
+  context "Frame-looping" do
+    let(:curses_window_mock) { CursesWindowMock.new(input_text: "あいう\n") }
+    let(:screen) { ConsoleWindow::Screen.new(curses: curses_mock) }
+    let(:window) { ConsoleWindow::Window.new(owner: screen, width: 80, height: 20) }
+
+    before do
+      curses_mock.stub!(:stdscr) { curses_window_mock }
+    end
+
+    subject { screen } 
+
+    before do
+      window.frames.on :main do
+        if @char = window.getc
+          window.unfocus!
+        end
+      end
+
+      window.focus!
+      subject.components << window
+    end
+
+    example do
+      subject.activate
+      @char.should == "あ"
+    end
+    
+    example "Frames#before" do
+      count = 0
+
+      window.frames.before :main do
+        count += 1
+      end
+
+     subject.activate
+
+      count.should == 1
+    end
+    
+    example "Frames#after" do
+      count = 0
+
+      window.frames.after :main do
+        count += 1
+      end
+
+      subject.activate
+
+      count.should == 1
+    end
+  end
 end

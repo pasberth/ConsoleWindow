@@ -43,6 +43,19 @@ module ConsoleWindow
     end
 
     def keypad val
+      # todo
+    end
+
+    def clear
+      # TODO
+    end
+
+    def setpos y, x
+      # TODO
+    end
+
+    def refresh
+      # TOOO
     end
 
     def addstr str

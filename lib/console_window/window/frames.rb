@@ -60,11 +60,21 @@ module ConsoleWindow
       end
 
       def unfocus! frame_id = :main, *args, &block
-        @window.screen.active_components.unfocus(self, frame_id, *args, &block)
+        case @frame_procs[frame_id]
+        when Frames
+          @window.screen.active_components.unfocus(@frame_procs[frame_id], :main, *args, &block)
+        else
+          @window.screen.active_components.unfocus(self, frame_id, *args, &block)
+        end
       end
 
       def focus! frame_id = :main, *args, &block
-        @window.screen.active_components.focus(self, frame_id, *args, &block)
+        case @frame_procs[frame_id]
+        when Frames
+          @window.screen.active_components.focus(@frame_procs[frame_id], :main, *args, &block)
+        else
+          @window.screen.active_components.focus(self, frame_id, *args, &block)
+        end
       end
 
       def call *args, &block

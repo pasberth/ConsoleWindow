@@ -38,6 +38,7 @@ describe ConsoleWindow::Window::Text::Line do
 
     example { subject[0..5].as_string.should == "hello\n" }
     example { subject[1..5].as_string.should == "ello\n" }
+    example { subject[0..0].as_string.should == "\n" }
   end
 
   describe "#[range]=" do

@@ -124,7 +124,11 @@ module ConsoleWindow
         def [] val
           case val
           when Range
-            Line.new @line[val.begin .. val.end - 1]
+            if val.end == 0
+              Line.new("\n")
+            else
+              Line.new @line[val.begin .. val.end - 1]
+            end
           else
             raise NotImplementedError
           end

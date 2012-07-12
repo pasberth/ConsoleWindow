@@ -14,10 +14,10 @@ module ConsoleWindow
 
         case c = getc
         when nil # timeout
-        when Curses::Key::RIGHT then cursor.right! or scroll.right!
-        when Curses::Key::LEFT then cursor.left! or scroll.left!
-        when Curses::Key::UP then cursor.up! or scroll.up!
-        when Curses::Key::DOWN then cursor.down! or scroll.down!
+        when Curses::Key::RIGHT then cursor.right! or scroll.right! and position.right!
+        when Curses::Key::LEFT then cursor.left! or scroll.left! and position.left!
+        when Curses::Key::UP then cursor.up! or scroll.up! and position.up!
+        when Curses::Key::DOWN then cursor.down! or scroll.down! and position.down!
         when 27.chr  # ESC
           unfocus!
         when 127.chr # DEL
@@ -26,12 +26,10 @@ module ConsoleWindow
             current_line.pop
           end
         when "\n"
-          cursor.down! or scroll.down!
+          text << "\n"
           cursor.x = 0
           scroll.x = 0
-          position.x = logical_cursor.x
-          position.y = logical_cursor.y
-          text << "\n" # TODO:  挿入の位置がおかしい。 Text#<< を修正する？
+          cursor.down! or scroll.down!
         else
           current_line << c
           cursor.right! or scroll.right!

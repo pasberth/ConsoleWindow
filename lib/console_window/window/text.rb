@@ -47,7 +47,13 @@ module ConsoleWindow
 
       def << line
         Text.new(@window, line).each do |line|
-          @lines.insert(@window.position.y, line)
+          if (t = self[@window.position.y]).empty?
+            @lines[@window.position.y] = t[0 .. @window.position.x] + line
+          else
+            @lines[@window.position.y] = t[0 .. @window.position.x] + line
+            @lines.insert(@window.position.y + 1, t[@window.position.x .. t.count])
+          end
+          @window.position.x = 0
           @window.position.y += 1 # TODO: replace position#down!
         end
         self
@@ -121,6 +127,10 @@ module ConsoleWindow
           end
         end
         
+        def + line
+          Line.new(to_a + Line.new(line).to_a)
+        end
+
         def [] val
           case val
           when Range

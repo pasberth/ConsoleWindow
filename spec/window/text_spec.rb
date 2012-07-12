@@ -44,6 +44,17 @@ A
 hello
 A
     end
+
+    it "will insert a new line at window.position" do
+      subject << "hello"
+      window.position.x = 2
+      window.position.y = 0
+      subject << "world"
+      subject.as_string.should == <<-A
+heworld
+llo
+A
+    end
   end
 
   describe "#crop" do

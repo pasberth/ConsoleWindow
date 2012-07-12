@@ -33,7 +33,7 @@ module ConsoleWindow
 
       def on frame_id = :main, &block
         @frame_procs[frame_id.to_sym] ?
-          raise("The frame id #{@window.class}->#{frame_id} was reserved.") : @frame_procs[frame_id.to_sym] = block
+          raise(ArgumentError, "The frame id #{@window.class}->#{frame_id} was reserved.") : @frame_procs[frame_id.to_sym] = block
       end
 
       def before frame_id, &block
@@ -49,7 +49,7 @@ module ConsoleWindow
       def group frame_id
         Frames.new(@window).tap do |group|
           @frame_procs[frame_id.to_sym] ?
-            raise("The frame id #{@window.class}->#{frame_id} was reserved.") :
+            raise(ArgumentError, "The frame id #{@window.class}->#{frame_id} was reserved.") :
             @frame_procs[frame_id.to_sym] = group
           yield group if block_given?
         end

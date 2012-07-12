@@ -2,6 +2,7 @@
 require 'give4each'
 
 module ConsoleWindow
+
   class CursesWindowMock
     
     MAXX = 80
@@ -39,6 +40,9 @@ module ConsoleWindow
 
     def screen= text
       @screen = text.split("\n").map &:each_char.and_to_a
+    end
+
+    def keypad val
     end
 
     def addstr str

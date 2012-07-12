@@ -22,7 +22,8 @@ module ConsoleWindow
                      owner: nil,  # Screen は常に最上位のウィンドウなので不要。 nil である前提
                      width: nil,  # width, height は Curses.stdscr によって決定される
                      height: nil, # 
-                     active_components: ActiveComponents.new(self, [])
+                     active_components: ActiveComponents.new(self, []),
+                     curses: Curses
                    })
     end
 
@@ -32,6 +33,7 @@ module ConsoleWindow
     # For the Curses Window Methods
     # ====================
 
+    attr_accessor :curses
     attr_accessor :curses_window
     attr_accessor :curses_io
 
@@ -64,10 +66,10 @@ module ConsoleWindow
     end
 
     def activate
-      Curses.init_screen
-      Curses.timeout = 0  # NON-BLOCKING
-      Curses.noecho       # NO-ECHO
-      @curses_window = Curses.stdscr
+      @curses.init_screen
+      @curses.timeout = 0  # NON-BLOCKING
+      @curses.noecho       # NO-ECHO
+      @curses_window = @curses.stdscr
       @curses_window.keypad(true) # 
 
       @curses_io = CursesIO.new(curses_window)
@@ -106,7 +108,7 @@ module ConsoleWindow
       end
 
     ensure
-      Curses.close_screen
+      @curses.close_screen
     end
 
     def focus_cursor!

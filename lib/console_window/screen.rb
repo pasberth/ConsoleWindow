@@ -61,19 +61,24 @@ module ConsoleWindow
       text = displayed_text
       height.times.zip text do |y, line|
         line ||= []
-        width.times.zip line do |x, char|
-          char ||= ' '
-          @screen_buf[y] ||= []
-
-          if @screen_buf[y][x] != char
-            # TODO: 日本語の扱い
-            curses_window.setpos y, x
-            curses_window.addstr char
-            @screen_buf[y][x] = char
-            refresh_flag ||= true
-          end
+        if @screen_buf[y] != (newline = line.to_a.join)
+          @screen_buf[y] = newline
+          refresh_flag ||= true
+          break
         end
       end
+
+      if refresh_flag
+        curses_window.clear
+
+        height.times.zip text do |y, line|
+          line ||= []
+          newline = line.to_a.join
+          curses_window.setpos y, 0
+          curses_window.addstr newline
+        end
+      end
+
       focus_cursor!
       curses_window.addstr(curses_io.gets_buf.join) # echo. TODO: gets_buf のもっと良い名前
 
@@ -134,7 +139,7 @@ module ConsoleWindow
 
         # ちょうど0.02秒待機する
         # TODO: 良い名前を見つけて変数にする
-        if 0 < (s = 0.02 - (end_time - begin_time))
+        if 0 < (s = 0.01 - (end_time - begin_time))
           sleep(s)
         end
       end while group

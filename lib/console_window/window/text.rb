@@ -10,23 +10,33 @@ module ConsoleWindow
 
       attr_accessor :window
 
+      def self.new window, text = ''
+        case text
+        when Text then (text.window == window) ? text : super
+        else super
+        end
+      end
+
       def initialize window, text = ''
         @window = window
         @lines = case text
                  when String then text.lines.map { |line| Line.new(line) }
                  when Array then text
-                 when Text then text.map(&:clone)
                  end
       end
 
       def each
         if block_given?
-          @lines.reverse_each.drop_while{|a| a.nil? or a.empty? }.reverse_each.with_index do |line, i|
+          @lines.each_with_index do |line, i|
             yield line ? line : @lines[i] = Line.new("\n")
           end
         else
           Enumerator.new(self, :each)
         end
+      end
+
+      def count
+        @lines.length
       end
 
       def []= n, text
@@ -106,13 +116,19 @@ module ConsoleWindow
 
         include Enumerable
 
+        def self.new line = nil
+          case line
+          when Line then line
+          else super
+          end
+        end
+
         def initialize line = nil
           @null_line = [nil, ''].include? line
           @line = case line
                   when nil, '' then []
                   when Array then line.last == "\n" ? line[0..-2] : line.clone
                   when String then line.chomp.each_char.to_a
-                  when Line then line.map(&:clone)
                   else raise TypeError, "Can't convert #{line.class} into Array"
                   end
         end
@@ -125,6 +141,10 @@ module ConsoleWindow
           else
             Enumerator.new(self, :each)
           end
+        end
+
+        def count
+          @line.length
         end
         
         def + line

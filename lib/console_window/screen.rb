@@ -14,6 +14,7 @@ module ConsoleWindow
       # オブジェクトを作った時点では Curses.stdscr を呼ばない。 #activate 呼び出しで初めて呼ぶ
       # @curses_window = Curses.stdscr
       # @curses_io = CursesIO.new(curses_window)
+      @screen_buf = []
     end
 
     def default_attributes
@@ -54,14 +55,31 @@ module ConsoleWindow
 
     def paint
       raise NoMethodError unless curses_window
-      curses_window.clear
-      as_displayed_string.each_line.with_index do |str, i| 
-        curses_window.setpos i, 0
-        curses_window.addstr str
+
+      refresh_flag = false
+
+      text = displayed_text
+      height.times.zip text do |y, line|
+        line ||= []
+        width.times.zip line do |x, char|
+          char ||= ' '
+          @screen_buf[y] ||= []
+
+          if @screen_buf[y][x] != char
+            # TODO: 日本語の扱い
+            curses_window.setpos y, x
+            curses_window.addstr char
+            @screen_buf[y][x] = char
+            refresh_flag ||= true
+          end
+        end
       end
       focus_cursor!
       curses_window.addstr(curses_io.gets_buf.join) # echo. TODO: gets_buf のもっと良い名前
-      curses_window.refresh
+
+      if refresh_flag
+        curses_window.refresh
+      end
       true
     end
 
@@ -110,6 +128,8 @@ module ConsoleWindow
         # TODO: deep calling
         components.each { |comp| comp.frames.backgrounds.each { |frame, opts| frame.call } }
 
+        paint
+
         end_time = Time.now
 
         # ちょうど0.02秒待機する
@@ -117,8 +137,6 @@ module ConsoleWindow
         if 0 < (s = 0.02 - (end_time - begin_time))
           sleep(s)
         end
-
-        paint
       end while group
 
     ensure
@@ -126,15 +144,23 @@ module ConsoleWindow
     end
 
     def focus_cursor!
-      cury = cursor.y
-      curx = displayed_text[cursor.y][0 .. cursor.x].inject(0) do |i, char|
+      if @cursor_y_current == cursor.y and
+         @cursor_x_current == cursor.x
+        curses_window.setpos @cury_current, @curx_current
+         return
+      end
+
+      @cursor_y_current = cursor.y
+      @cursor_x_current = cursor.x
+      @cury_current = cursor.y
+      @curx_current = displayed_text[cursor.y][0 .. cursor.x].inject(0) do |i, char|
         case char.bytes.count
         when 1 then i + 1
         when 2..4 then i + 2
         else abort
         end
       end
-      curses_window.setpos cury, curx
+      curses_window.setpos @cury_current, @curx_current
       true
     end
 

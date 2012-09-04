@@ -9,7 +9,7 @@ screen = Screen.new
 
 clock = screen.create_sub(Window, 40, 1, 0, 0)
 clock.frames.background do
-  clock.text = Time.now.to_s
+  clock.text = "\e[1m" + Time.now.to_s + "\e[m"
 end
 
 input = screen.create_sub(Window, 40, 1, 0, 1)

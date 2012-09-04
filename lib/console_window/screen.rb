@@ -71,11 +71,48 @@ module ConsoleWindow
       if refresh_flag
         curses_window.clear
 
+        on_attrs = []
+
+        attron = lambda do |a|
+          on_attrs << a
+          case a
+          when 1 then curses_window.attron(Curses::A_BOLD)
+          when 4 then curses_window.attron(Curses::A_UNDERLINE)
+          when 5 then curses_window.attron(Curses::A_BLINK)
+          when 7 then curses_window.attron(Curses::A_STANDOUT)
+          end
+        end
+
+        attroff = lambda do |a|
+          on_attrs.delete(a)
+          case a
+          when 1 then curses_window.attroff(Curses::A_BOLD)
+          when 4 then curses_window.attroff(Curses::A_UNDERLINE)
+          when 5 then curses_window.attroff(Curses::A_BLINK)
+          when 7 then curses_window.attroff(Curses::A_STANDOUT)
+          end
+        end
+
+        attroff_all = lambda do
+          on_attrs.each { |a| attroff.call(a) }
+        end
+
         height.times.zip text do |y, line|
           line ||= []
-          newline = line.to_a.join
           curses_window.setpos y, 0
-          curses_window.addstr newline
+          line.each do |c|
+            case c
+            when "\e[m", "\e[0m"
+              attroff_all.call()
+              #curses_window.attroff(Curses::A_BOLD)
+            when /^\e\[(?<A>\d*)(?<COL>;\d+\g<COL>?)?m/
+              a, col = $1.to_i, $2
+              attron.call(a)
+              col and col.split(';').map(&:to_i).each { |a| attron(a) }
+            else
+              curses_window.addch c
+            end
+          end
         end
       end
 

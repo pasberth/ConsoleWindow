@@ -24,7 +24,7 @@ cmd_line = screen.create_sub(Window, 80, 1, 0, 19)
 info_bar = screen.create_sub(Window, 80, 1, 0, 18)
 
 editor.frames.before :main do
-  info_bar.text[0] = "Type any key, edit the file. Press the ESC, back to the normal mode."
+  info_bar.text[0] = "\e[1m -- INSERT -- \e[m Type any key, edit the file. Press the ESC, back to the normal mode."
 end
 
 cmd_line.frames.before :main do

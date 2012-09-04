@@ -13,19 +13,16 @@ clock.frames.background do
 end
 
 input = screen.create_sub(Window, 40, 1, 0, 1)
-echo = screen.create_sub(Window, 40, 1, 0, 2)
 
 input.frames.on :main do
   case str = input.gets
   when nil
-  when /^exit/
-    input.unfocus!
   else
-    echo.text = str
+    input.unfocus!
   end
 end
 
-screen.components << clock << input << echo
+screen.components << clock << input
 input.focus!
 
 screen.activate

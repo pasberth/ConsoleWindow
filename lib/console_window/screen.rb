@@ -15,6 +15,7 @@ module ConsoleWindow
       # @curses_window = Curses.stdscr
       # @curses_io = CursesIO.new(curses_window)
       @screen_buf = []
+      @gets_buf = []
     end
 
     def default_attributes
@@ -66,6 +67,11 @@ module ConsoleWindow
           refresh_flag ||= true
           break
         end
+      end
+
+      if @gets_buf != curses_io.gets_buf
+        refresh_flag = true
+        @gets_buf = curses_io.gets_buf.clone
       end
 
       if refresh_flag

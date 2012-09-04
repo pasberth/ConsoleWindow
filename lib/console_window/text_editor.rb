@@ -22,7 +22,7 @@ module ConsoleWindow
           unfocus!
         when 127.chr # DEL
           if cursor.left! or scroll.left!
-            position.x -= 1
+            position.left!
             current_line.pop
           end
         when "\n"

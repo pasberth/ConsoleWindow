@@ -122,13 +122,24 @@ module ConsoleWindow
           else super
           end
         end
+        
+        def self.parse line
+          line = line.chomp
+          line.split(/(?=\e)/).map do |escape|
+            if escape =~ /^\e\[\d*(?<COL>;\d+\g<COL>?)?m/
+              [$~[0]] + escape.sub($~[0], "").chars.to_a
+            else
+              escape.chars.to_a
+            end
+          end.flatten(1)
+        end
 
         def initialize line = nil
           @null_line = [nil, ''].include? line
           @line = case line
                   when nil, '' then []
                   when Array then line.last == "\n" ? line[0..-2] : line.clone
-                  when String then line.chomp.each_char.to_a
+                  when String then Line.parse(line)
                   else raise TypeError, "Can't convert #{line.class} into Array"
                   end
         end
@@ -159,6 +170,10 @@ module ConsoleWindow
             else
               Line.new @line[val.begin .. val.end - 1]
             end
+          when Integer
+            @line[val]
+            #return @line[val] unless @line.include? "\e"
+           #
           else
             raise NotImplementedError
           end
@@ -196,6 +211,13 @@ module ConsoleWindow
         
         def as_string
           empty? ? '' : each.to_a.join + "\n"
+        end
+
+        def == obj
+          case obj
+          when String then as_string == obj
+          else super
+          end
         end
 
         def clone

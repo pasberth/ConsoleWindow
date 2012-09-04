@@ -47,11 +47,11 @@ module ConsoleWindow
     alias absolute_y y
 
     def width
-      curses_window ? curses_window.maxx : nil
+      curses_window ? curses_window.maxx : Float::INFINITY
     end
 
     def height
-      curses_window ? curses_window.maxy : nil
+      curses_window ? curses_window.maxy : Float::INFINITY
     end
 
     def paint

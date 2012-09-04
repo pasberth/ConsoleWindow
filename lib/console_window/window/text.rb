@@ -125,13 +125,7 @@ module ConsoleWindow
         
         def self.parse line
           line = line.chomp
-          line.split(/(?=\e)/).map do |escape|
-            if escape =~ /^\e\[\d*(?<COL>;\d+\g<COL>?)?m/
-              [$~[0]] + escape.sub($~[0], "").chars.to_a
-            else
-              escape.chars.to_a
-            end
-          end.flatten(1)
+          line.split_escaped_chars
         end
 
         def initialize line = nil

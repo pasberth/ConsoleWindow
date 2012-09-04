@@ -10,13 +10,26 @@ module ConsoleWindow
 
     def initialize curses_window
       @curses_window = curses_window
+      @attrs = [] 
       @getc_buf = []
       @gets_buf = []
       @ungetc_buf = []
     end
 
     def write text
-      @curses_window.addstr(text)
+      text.each_escaped_char do |c|
+        case c
+        when "\e[m", "\e[0m"
+          attroff_all
+          #curses_window.attroff(Curses::A_BOLD)
+        when /^\e\[(?<A>\d*)(?<COL>;\d+\g<COL>?)?m/
+          a, col = $1.to_i, $2
+          attron(a)
+          col and col.split(';').map(&:to_i).each { |a| attron(a) }
+        else
+          @curses_window.addch c
+        end
+      end
       true
     end
 
@@ -106,5 +119,37 @@ module ConsoleWindow
         end
       end
     end
+
+
+    private
+
+      def ansi_color_to_curses_attr n
+        case n
+        when 1 then Curses::A_BOLD
+        when 4 then Curses::A_UNDERLINE
+        when 5 then Curses::A_BLINK
+        when 7 then Curses::A_STANDOUT
+        else nil
+        end
+      end
+
+      def attron a
+        curses_attr = ansi_color_to_curses_attr(a) or return
+        @attrs << a
+        @curses_window.attron curses_attr
+        true
+      end
+
+      def attroff a
+        curses_attr = ansi_color_to_curses_attr(a) or return
+        @attrs.delete a or return
+        @curses_window.attroff curses_attr
+        true
+      end
+
+      def attroff_all
+        @attrs.each { |a| attroff(a) }
+        true
+      end
   end
 end

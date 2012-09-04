@@ -70,6 +70,8 @@ module ConsoleWindow
       end
       nil
     end
+
+    alias addch addstr
     
     def getch
       @input_text_buffer.shift

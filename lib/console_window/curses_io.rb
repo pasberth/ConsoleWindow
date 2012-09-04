@@ -27,7 +27,7 @@ module ConsoleWindow
           attron(a)
           col and col.split(';').map(&:to_i).each { |a| attron(a) }
         else
-          @curses_window.addch c
+          @curses_window.addstr c
         end
       end
       true
@@ -153,7 +153,7 @@ module ConsoleWindow
         when 35, 45 then Curses::COLOR_MAGENTA
         when 36, 46 then Curses::COLOR_CYAN
         when 37, 47 then Curses::COLOR_WHITE
-        when 38, 48 then 0 # 0 でターミナルのデフォルトの色にできる
+        when 38, 48 then -1 # -1 でターミナルのデフォルトの色にできる
         end
       end
 

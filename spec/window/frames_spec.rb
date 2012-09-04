@@ -23,7 +23,7 @@ describe ConsoleWindow::Window::Frames do
         context "when the frame 'main' was put two times" do
           
           it "raises error" do
-            expect { subject.on(:main) {} }.should raise_error ArgumentError
+            expect { subject.on(:main) {} }.to raise_error ArgumentError
           end
         end
       end

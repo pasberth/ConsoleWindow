@@ -64,7 +64,7 @@ module ConsoleWindow
             @lines.insert(@window.position.y + 1, t[@window.position.x .. t.count])
           end
           @window.position.x = 0
-          @window.position.y += 1 # TODO: replace position#down!
+          @window.position.down!
         end
         self
       end

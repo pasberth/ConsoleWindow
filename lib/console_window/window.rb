@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+require 'console_window/core_ext'
+
 module ConsoleWindow
 
   class Window

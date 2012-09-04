@@ -88,12 +88,15 @@ module ConsoleWindow
 
     def activate
       @curses.init_screen
+      @curses.start_color
+      @curses.use_default_colors
       @curses.timeout = 0  # NON-BLOCKING
       @curses.noecho       # NO-ECHO
       @curses_window = @curses.stdscr
       @curses_window.keypad(true) # 
 
       @curses_io = CursesIO.new(curses_window)
+      @curses_io.init_color(@curses)
 
       before_id = nil
       before_group = nil

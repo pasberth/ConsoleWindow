@@ -11,6 +11,7 @@ module ConsoleWindow
     def initialize curses_window
       @curses_window = curses_window
       @attrs = [] 
+      @color_pair = [38, 48]
       @getc_buf = []
       @gets_buf = []
       @ungetc_buf = []
@@ -21,7 +22,6 @@ module ConsoleWindow
         case c
         when "\e[m", "\e[0m"
           attroff_all
-          #curses_window.attroff(Curses::A_BOLD)
         when /^\e\[(?<A>\d*)(?<COL>;\d+\g<COL>?)?m/
           a, col = $1.to_i, $2
           attron(a)
@@ -121,6 +121,15 @@ module ConsoleWindow
     end
 
 
+    def init_color(curses=Curses)
+      (30..38).each do |fg|
+        (40..48).each do |bg|
+          curses.init_pair(color_pair_id(fg, bg), ansi_color_to_curses_color(fg), ansi_color_to_curses_color(bg))
+        end
+      end
+    end
+
+
     private
 
       def ansi_color_to_curses_attr n
@@ -129,26 +138,71 @@ module ConsoleWindow
         when 4 then Curses::A_UNDERLINE
         when 5 then Curses::A_BLINK
         when 7 then Curses::A_STANDOUT
+        when 30..38, 40..48 then Curses.color_pair(current_color_pair_id)
         else nil
         end
       end
 
+      def ansi_color_to_curses_color n
+        case n
+        when 30, 40 then Curses::COLOR_BLACK
+        when 31, 41 then Curses::COLOR_RED
+        when 32, 42 then Curses::COLOR_GREEN
+        when 33, 43 then Curses::COLOR_YELLOW
+        when 34, 44 then Curses::COLOR_BLUE
+        when 35, 45 then Curses::COLOR_MAGENTA
+        when 36, 46 then Curses::COLOR_CYAN
+        when 37, 47 then Curses::COLOR_WHITE
+        when 38, 48 then 0 # 0 でターミナルのデフォルトの色にできる
+        end
+      end
+
+      def color_pair_id fg, bg
+        fg = fg - 30
+        bg = bg - 40
+        fg + bg*9
+      end
+
+      def current_color_pair_id
+        color_pair_id(*@color_pair)
+      end
+
       def attron a
+        case a
+        when 30..38
+          @color_pair[0] = a
+        when 40..48
+          @color_pair[1] = a
+        else
+          @attrs << a
+        end
+
         curses_attr = ansi_color_to_curses_attr(a) or return
-        @attrs << a
+
         @curses_window.attron curses_attr
         true
       end
 
       def attroff a
-        curses_attr = ansi_color_to_curses_attr(a) or return
-        @attrs.delete a or return
+        case a
+        when 30..38
+          curses_attr = Curses::A_COLOR
+          @color_pair[0] = 38
+        when 40..48
+          curses_attr = Curses::A_COLOR
+          @color_pair[1] = 48
+        else
+          curses_attr = ansi_color_to_curses_attr(a) or return
+          @attrs.delete(a) or return
+        end
+
         @curses_window.attroff curses_attr
         true
       end
 
       def attroff_all
         @attrs.each { |a| attroff(a) }
+        @color_pair.each { |a| attroff(a) }
         true
       end
   end

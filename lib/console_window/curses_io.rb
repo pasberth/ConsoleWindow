@@ -138,6 +138,7 @@ module ConsoleWindow
         when 4 then Curses::A_UNDERLINE
         when 5 then Curses::A_BLINK
         when 7 then Curses::A_STANDOUT
+        when 8 then Curses::A_INVIS
         when 30..38, 40..48 then Curses.color_pair(current_color_pair_id)
         else nil
         end

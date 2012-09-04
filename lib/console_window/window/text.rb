@@ -22,6 +22,7 @@ module ConsoleWindow
         @lines = case text
                  when String then text.lines.map { |line| Line.new(line) }
                  when Array then text
+                 when Line then [text]
                  end
       end
 

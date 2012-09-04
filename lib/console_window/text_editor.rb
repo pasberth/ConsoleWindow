@@ -24,6 +24,18 @@ module ConsoleWindow
           if cursor.left! or scroll.left!
             position.left!
             current_line.pop
+          else
+            if cursor.up! or scroll.up!
+              del = text.pop
+              position.up!
+              if cursor.max_x < current_line.count
+                cursor.x = cursor.max_x
+                scroll.x = current_line.count - cursor.max_x
+              else
+                cursor.x = current_line.count
+              end
+              text[position.y] = current_line + del
+            end
           end
         when "\n"
           text << "\n"

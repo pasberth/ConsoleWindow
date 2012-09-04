@@ -12,5 +12,6 @@ Gem::Specification.new do |s|
   s.executables = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.files = `git ls-files`.split("\n")
   s.test_files = `git ls-files -- spec/*`.split("\n")
-  s.add_development_dependency "curses"
+  s.add_development_dependency "rspec"
+  s.add_dependency "give4each"
 end

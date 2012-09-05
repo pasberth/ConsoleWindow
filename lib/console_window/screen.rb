@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 require 'curses'
+require 'unicode/display_width'
 require 'console_window/container'
 require 'console_window/curses_io'
 
@@ -167,12 +168,10 @@ module ConsoleWindow
       @cursor_y_current = cursor.y
       @cursor_x_current = cursor.x
       @cury_current = cursor.y
-      @curx_current = displayed_text[cursor.y][0 .. cursor.x].inject(0) do |i, char|
-        case char.bytes.count
-        when 1 then i + 1
-        when 2..4 then i + 2
-        else abort
-        end
+      line = displayed_text[cursor.y][0 .. cursor.x].to_a
+      @curx_current = line.join.display_width
+      if line.length < cursor.x
+        @curx_current += cursor.x - line.length
       end
       curses_window.setpos @cury_current, @curx_current
       true

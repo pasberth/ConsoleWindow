@@ -94,18 +94,6 @@ module ConsoleWindow
         when nil then break # timeout
         when 127.chr  # DEL
           delc = @gets_buf.pop or next
-#          case delc.bytes.count
-#          when 1
-#            @curses_window.setpos(@curses_window.cury, @curses_window.curx - 1)
-#            @curses_window.delch
-#          when 2..4
-#            2.times do  # 多バイト文字。とりあえず決めうちでカーソル2つ分削除。
-#              @curses_window.setpos(@curses_window.cury, @curses_window.curx - 1)
-#              @curses_window.delch
-#            end
-#          else
-#            fail
-#          end
         else
           @gets_buf << c
         end

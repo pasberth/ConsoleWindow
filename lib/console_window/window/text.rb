@@ -160,6 +160,8 @@ module ConsoleWindow
           return Enumerator.new(self, :collect_char) unless block_given?
 
           @line.flat_map do |char|
+            next unless char # avoid nil
+
             if char[0] == "\e"
               char
             else

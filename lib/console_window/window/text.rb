@@ -37,7 +37,7 @@ module ConsoleWindow
       end
 
       def count
-        @lines.length
+        @lines.reverse_each.drop_while(&:empty?).length
       end
 
       def []= n, text

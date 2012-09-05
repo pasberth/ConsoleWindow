@@ -14,10 +14,19 @@ module ConsoleWindow
 
         case c = getc
         when nil # timeout
-        when Curses::Key::RIGHT then cursor.right! or scroll.right! and position.right!
+        when Curses::Key::RIGHT then
+          if logical_cursor.x < current_line.count
+            cursor.right! or scroll.right! and position.right!
+          end
         when Curses::Key::LEFT then cursor.left! or scroll.left! and position.left!
         when Curses::Key::UP then cursor.up! or scroll.up! and position.up!
-        when Curses::Key::DOWN then cursor.down! or scroll.down! and position.down!
+        when Curses::Key::DOWN
+          if logical_cursor.y + 1 < text.count
+            cursor.down! or scroll.down! and position.down!
+            if current_line.count <= logical_cursor.x
+              cursor.x = current_line.count - scroll.x
+            end
+          end
         when 27.chr  # ESC
           unfocus!
         when 127.chr # DEL

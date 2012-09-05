@@ -93,6 +93,8 @@ module ConsoleWindow
     end
 
     def activate
+      ENV["ESCDELAY"] ||= "0"
+
       @curses.init_screen
       @curses.start_color
       @curses.use_default_colors

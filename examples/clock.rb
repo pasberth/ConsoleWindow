@@ -15,7 +15,7 @@ end
 input = screen.create_sub(Window, 40, 1, 0, 1)
 
 input.frames.on :main do
-  case str = input.gets
+  case str = input.getc
   when nil
   else
     input.unfocus!

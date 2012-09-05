@@ -145,17 +145,27 @@ module ConsoleWindow
         end
 
         def each
-          if block_given?
-            @line.each do |char|
-              yield char ? char : ' '
-            end
-          else
-            Enumerator.new(self, :each)
+          return Enumerator.new(self, :each) unless block_given?
+
+          @line.each do |char|
+            yield char ? char : ' '
           end
         end
 
         def count
           @line.length
+        end
+
+        def collect_char
+          return Enumerator.new(self, :collect_char) unless block_given?
+
+          @line.flat_map do |char|
+            if char[0] == "\e"
+              char
+            else
+              yield char
+            end
+          end.compact
         end
         
         def + line
@@ -236,10 +246,16 @@ module ConsoleWindow
           case n
           when Range
             w = 0
-            l = @line.reject { |c| c[0] == "\e" }
-            l = l.drop_while { |c| w += c.display_width; w <= n.begin }
-            w = n.begin + 1
-            Line.new(l.take_while { |c| w += c.display_width; w <= n.end.succ }.join)
+            Line.new(@line.collect_char do |c|
+              w += c.display_width
+              if w <= n.begin
+                nil
+              elsif w <= n.end
+                c
+              else
+                nil
+              end
+            end)
           end
         end
       end

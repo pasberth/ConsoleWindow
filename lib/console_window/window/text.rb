@@ -1,4 +1,5 @@
 require 'give4each'
+require 'unicode/display_width'
 
 module ConsoleWindow
 
@@ -75,7 +76,7 @@ module ConsoleWindow
       end
 
       def crop start_x, start_y, end_x, end_y
-        Text.new(@window, self[start_y .. end_y].map { |line| line[start_x .. end_x] })
+        Text.new(@window, self[start_y .. end_y].map { |line| line.physical[start_x .. end_x] })
       end
 
       def paste! text, x, y
@@ -139,6 +140,10 @@ module ConsoleWindow
                   end
         end
 
+        def physical
+          @physical ||= PhysicalLine.new(self)
+        end
+
         def each
           if block_given?
             @line.each do |char|
@@ -167,8 +172,6 @@ module ConsoleWindow
             end
           when Integer
             @line[val]
-            #return @line[val] unless @line.include? "\e"
-           #
           else
             raise NotImplementedError
           end
@@ -219,6 +222,24 @@ module ConsoleWindow
           super.instance_exec(@line.clone) do |line|
             @line = line
             self
+          end
+        end
+      end
+
+      class PhysicalLine
+
+        def initialize line
+          @line = line
+        end
+
+        def [] n
+          case n
+          when Range
+            w = 0
+            l = @line.reject { |c| c[0] == "\e" }
+            l = l.drop_while { |c| w += c.display_width; w <= n.begin }
+            w = n.begin + 1
+            Line.new(l.take_while { |c| w += c.display_width; w <= n.end.succ }.join)
           end
         end
       end

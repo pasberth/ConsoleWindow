@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'spec_helper'
 
 describe ConsoleWindow::Window::Text do
@@ -59,36 +60,81 @@ A
 
   describe "#crop" do
 
-    before do
-      subject[0] = "__@@"
-      subject[1] = "..**"
-      subject[2] = ",,++"
-    end
+    context do
 
-    describe "return value" do
-      example { subject.crop(0, 0, 5, 1).should be_kind_of ConsoleWindow::Window::Text }
-    end
+      before do
+        subject[0] = "__@@"
+        subject[1] = "..**"
+        subject[2] = ",,++"
+      end
 
-    example { subject.crop(0, 0, 3, 1).as_string.should == "__@\n" }
-    example { subject.crop(0, 1, 3, 2).as_string.should == "..*\n" }
-    example { subject.crop(1, 0, 4, 1).as_string.should == "_@@\n" }
-    example { subject.crop(1, 1, 4, 2).as_string.should == ".**\n" }
+      describe "return value" do
+        example { subject.crop(0, 0, 5, 1).should be_kind_of ConsoleWindow::Window::Text }
+      end
 
-    example { subject.crop(2, 0, 20, 1).as_string.should == "@@\n" }
-    example { subject.crop(0, 2, 3, 20).as_string.should == ",,+\n" }
+      example { subject.crop(0, 0, 3, 1).as_string.should == "__@\n" }
+      example { subject.crop(0, 1, 3, 2).as_string.should == "..*\n" }
+      example { subject.crop(1, 0, 4, 1).as_string.should == "_@@\n" }
+      example { subject.crop(1, 1, 4, 2).as_string.should == ".**\n" }
 
-    example { subject.crop(10, 10, 20, 20).as_string.should == "" }
+      example { subject.crop(2, 0, 20, 1).as_string.should == "@@\n" }
+      example { subject.crop(0, 2, 3, 20).as_string.should == ",,+\n" }
+      
+      example { subject.crop(10, 10, 20, 20).as_string.should == "" }
 
-    example { subject.crop(0, 0, 3, 3).as_string.should == <<-A }
+      example { subject.crop(0, 0, 3, 3).as_string.should == <<-A }
 __@
 ..*
 ,,+
 A
-
-    example { subject.crop(1, 1, 3, 3).as_string.should == <<-A }
+      
+      example { subject.crop(1, 1, 3, 3).as_string.should == <<-A }
 .*
 ,+
 A
+    end
+
+    context "when that contains a Japanese character" do
+
+      before do
+        subject[0] = "ｱｱｱｱｯ"
+        subject[1] = "あいうえお"
+        subject[2] = "ABCDEF"
+      end
+
+      example { subject.crop(0, 0, 3, 3).as_string.should == <<-A }
+ｱｱｱ
+あ
+ABC
+A
+      example { subject.crop(0, 0, 4, 3).as_string.should == <<-A }
+ｱｱｱｱ
+あい
+ABCD
+A
+      
+      example { subject.crop(0, 0, 5, 3).as_string.should == <<-A }
+ｱｱｱｱｯ
+あい
+ABCDE
+A
+      example { subject.crop(0, 0, 6, 3).as_string.should == <<-A }
+ｱｱｱｱｯ
+あいう
+ABCDEF
+A
+      example { subject.crop(1, 0, 5, 3).as_string.should == <<-A }
+ｱｱｱｯ
+あい
+BCDE
+A
+      example { subject.crop(2, 0, 5, 3).as_string.should == <<-A }
+ｱｱｯ
+い
+CDE
+A
+
+    end
   end
 
   describe "#paste" do

@@ -29,7 +29,7 @@ module ConsoleWindow
           end
         when 27.chr  # ESC
           unfocus!
-        when 127.chr # DEL
+        when Curses::Key::BACKSPACE, 127.chr # DEL
           if cursor.left! or scroll.left!
             position.left!
             current_line.pop

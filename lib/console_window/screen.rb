@@ -179,18 +179,24 @@ module ConsoleWindow
 
     def getc
       begin
-        case c = curses_io.getc
+        case char = curses_io.getc
         when Curses::Key::RESIZE # TODO
           raise NotImplementedError
         when nil
           Fiber.yield
-        else c
+        else char
         end
-      end until c
+      end until char
+
+      char
     end
 
     def gets sep = $/
-      curses_io.gets(sep) or Fiber.yield
+      begin
+        str = curses_io.gets(sep) or Fiber.yield
+      end until str
+
+      str
     end
   end
 end

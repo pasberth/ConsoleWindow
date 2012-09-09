@@ -57,7 +57,7 @@ describe ConsoleWindow::Screen do
       subject.getc.should == "あ"
       subject.getc.should == "い"
       subject.getc.should == "う"
-      subject.getc.should be_nil
+      #subject.getc.should be_nil
     end
   end
 
@@ -74,9 +74,8 @@ describe ConsoleWindow::Screen do
 
     before do
       window.frames.on :main do
-        if @char = window.getc
-          window.unfocus!
-        end
+        @char = window.getc
+        window.unfocus!
       end
 
       window.focus!

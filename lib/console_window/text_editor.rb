@@ -13,7 +13,6 @@ module ConsoleWindow
         position.y = logical_cursor.y
 
         case c = getc
-        when nil # timeout
         when Curses::Key::RIGHT then
           if logical_cursor.x < current_line.count
             cursor.right! or scroll.right! and position.right!

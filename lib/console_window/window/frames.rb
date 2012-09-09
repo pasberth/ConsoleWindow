@@ -87,8 +87,8 @@ module ConsoleWindow
 
     class Frames::Frame
       def initialize &block
+        @original_block = block
         @context = Fiber.new(&block)
-        @is_context_proceed = true
         @first = true
       end
       
@@ -96,11 +96,11 @@ module ConsoleWindow
         if @first
           @context.resume(*args, &block)
           @first = false
-        elsif @is_context_proceed
+        else
           begin
             @context.resume
           rescue FiberError
-            @is_context_proceed = false
+            initialize &@original_block
           end
         end
       end

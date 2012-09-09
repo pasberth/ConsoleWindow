@@ -13,7 +13,6 @@ input_window.text << "will echo. input plz: "
 
 input_window.frames.on :main do
   case s = input_window.gets
-  when nil
   when /^exit/
     input_window.unfocus!
   else

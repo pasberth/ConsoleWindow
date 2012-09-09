@@ -5,9 +5,8 @@ require 'console_window'
 screen = ConsoleWindow::Screen.new
 screen.text << "hello world"
 screen.frames.on :main do
-  if screen.getc
-    screen.unfocus!
-  end
+  screen.getc
+  screen.unfocus!
 end
 screen.focus!
 screen.activate

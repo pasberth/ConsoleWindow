@@ -32,8 +32,11 @@ module ConsoleWindow
       end
 
       def on frame_id = :main, &block
-        @frame_procs[frame_id.to_sym] ?
-          raise(ArgumentError, "The frame id #{@window.class}->#{frame_id} was reserved.") : @frame_procs[frame_id.to_sym] = block
+        if @frame_procs[frame_id.to_sym]
+          raise(ArgumentError, "The frame id #{@window.class}->#{frame_id} was reserved.")
+        else
+          @frame_procs[frame_id.to_sym] = Frame.new(&block)
+        end
       end
 
       def before frame_id, &block
@@ -79,6 +82,27 @@ module ConsoleWindow
 
       def call *args, &block
         frame(:main).call(*args, &block)
+      end
+    end
+
+    class Frames::Frame
+      def initialize &block
+        @context = Fiber.new(&block)
+        @is_context_proceed = true
+        @first = true
+      end
+      
+      def call *args, &block
+        if @first
+          @context.resume(*args, &block)
+          @first = false
+        elsif @is_context_proceed
+          begin
+            @context.resume
+          rescue FiberError
+            @is_context_proceed = false
+          end
+        end
       end
     end
   end

@@ -178,16 +178,19 @@ module ConsoleWindow
     end
 
     def getc
-      case c = curses_io.getc
-      when Curses::Key::RESIZE # TODO
-        raise NotImplementedError
-      else
-        c
-      end
+      begin
+        case c = curses_io.getc
+        when Curses::Key::RESIZE # TODO
+          raise NotImplementedError
+        when nil
+          Fiber.yield
+        else c
+        end
+      end until c
     end
 
     def gets sep = $/
-      curses_io.gets(sep)
+      curses_io.gets(sep) or Fiber.yield
     end
   end
 end

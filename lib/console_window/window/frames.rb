@@ -90,17 +90,20 @@ module ConsoleWindow
       end
     end
 
+
     class Frames::Frame
+
       def initialize &block
+
         @original_block = block
         @context = Fiber.new(&block)
         @first = true
       end
       
       def call *args, &block
-        if @first
-          @context.resume(*args, &block)
+        if @first 
           @first = false
+          @context.resume(*args, &block)
         else
           begin
             @context.resume

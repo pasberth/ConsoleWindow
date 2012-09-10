@@ -12,7 +12,10 @@ module ConsoleWindow
       def initialize screen, list = []
         @screen = screen
         @list = list
+        @result = {}
       end
+
+      attr_reader :result
 
       def frame_group
         @list.last ? @list.last[0] : nil
@@ -36,7 +39,7 @@ module ConsoleWindow
         true
       end
 
-      def unfocus group, id
+      def unfocus group, id, result = { return_value: nil }
         return false if self.frame_group != group
         # group(a):main
         # group(a):command
@@ -48,6 +51,7 @@ module ConsoleWindow
         end
         @list.pop
         focus!
+        @result = result
         true
       end
 

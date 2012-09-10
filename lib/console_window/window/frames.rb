@@ -81,6 +81,7 @@ module ConsoleWindow
 
         begin
           Fiber.yield
+          @window.screen.active_components.result[:return_value]
         rescue FiberError
         end
       end

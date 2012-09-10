@@ -35,9 +35,8 @@ screen.text << "White/Red:    \e[37;41m*\e[m"
 screen.text << "Black/Yellow: \e[30;43m*\e[m"
 
 screen.frames.on :main do
-  if screen.getc
-    screen.unfocus!
-  end
+  screen.getc
+  screen.unfocus!
 end
 screen.focus!
 screen.activate

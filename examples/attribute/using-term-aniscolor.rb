@@ -47,9 +47,8 @@ screen.text << "White/Red:    %s" % white { on_red "*" }
 screen.text << "Black/Yellow: %s" % black { on_yellow "*" }
 
 screen.frames.on :main do
-  if screen.getc
-    screen.unfocus!
-  end
+  screen.getc
+  screen.unfocus!
 end
 screen.focus!
 screen.activate

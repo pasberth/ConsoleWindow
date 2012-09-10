@@ -78,6 +78,11 @@ module ConsoleWindow
         else
           @window.screen.active_components.focus(self, frame_id, *args, &block)
         end
+
+        begin
+          Fiber.yield
+        rescue FiberError
+        end
       end
 
       def call *args, &block

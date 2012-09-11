@@ -153,7 +153,7 @@ module ConsoleWindow
         end
 
         def count
-          @line.length
+          @line.reject { |a| a =~ /^\e/ }.length
         end
 
         def collect_char

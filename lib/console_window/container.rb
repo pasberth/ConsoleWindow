@@ -26,7 +26,7 @@ module ConsoleWindow
     end
 
     def as_string
-      displayed_text.as_string.chomp
+      displayed_text.as_string(true).chomp
     end
 
     alias as_displayed_string as_string

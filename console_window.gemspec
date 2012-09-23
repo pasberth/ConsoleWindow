@@ -15,5 +15,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec"
   s.add_development_dependency "term-ansicolor"
   s.add_dependency "give4each"
+  s.add_dependency "text_display"
   s.add_dependency "unicode-display_width"
 end

@@ -20,9 +20,9 @@ module ConsoleWindow
     def displayed_text
       text = TextDisplay::Text.new(self.text.as_string)
       components.each do |comp|
-        text.paste!(comp.as_displayed_string, comp.x, comp.y)
+        text.paste!(comp.text.displayed_text, comp.x, comp.y)
       end
-      self.text = text.as_string(true)
+      self.text = text
       self.text.displayed_text
     end
 

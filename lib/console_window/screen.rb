@@ -63,7 +63,7 @@ module ConsoleWindow
       text = displayed_text
       height.times.zip(text.each_line) do |y, line|
         line ||= []
-        if @screen_buf[y] != (newline = line.to_a.join)
+        if @screen_buf[y] != (newline = line.map(&:as_string).join)
           @screen_buf[y] = newline
           refresh_flag ||= true
           break
@@ -80,7 +80,7 @@ module ConsoleWindow
         height.times.zip(text.each_line) do |y, line|
           line ||= []
           curses_window.setpos y, 0
-          curses_io.write(line.to_a.join)
+          curses_io.write(line.map(&:as_string).join)
         end
       end
 

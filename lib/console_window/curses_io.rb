@@ -11,7 +11,7 @@ module ConsoleWindow
     def initialize curses_window
       @curses_window = curses_window
       @attrs = [] 
-      @color_pair = [38, 48]
+      @color_pair = [39, 49]
       @getc_buf = []
       @gets_buf = []
       @ungetc_buf = []
@@ -110,8 +110,8 @@ module ConsoleWindow
 
 
     def init_color(curses=Curses)
-      (30..38).each do |fg|
-        (40..48).each do |bg|
+      [*30..37, 39].each do |fg|
+        [*40..47, 49].each do |bg|
           curses.init_pair(color_pair_id(fg, bg), ansi_color_to_curses_color(fg), ansi_color_to_curses_color(bg))
         end
       end
@@ -127,7 +127,7 @@ module ConsoleWindow
         when 5 then Curses::A_BLINK
         when 7 then Curses::A_STANDOUT
         when 8 then Curses::A_INVIS
-        when 30..38, 40..48 then Curses.color_pair(current_color_pair_id)
+        when 30..37, 39, 40..47, 49 then Curses.color_pair(current_color_pair_id)
         else nil
         end
       end
@@ -142,7 +142,7 @@ module ConsoleWindow
         when 35, 45 then Curses::COLOR_MAGENTA
         when 36, 46 then Curses::COLOR_CYAN
         when 37, 47 then Curses::COLOR_WHITE
-        when 38, 48 then -1 # -1 でターミナルのデフォルトの色にできる
+        when 39, 49 then -1 # -1 でターミナルのデフォルトの色にできる
         end
       end
 
@@ -158,10 +158,13 @@ module ConsoleWindow
 
       def attron a
         case a
-        when 30..38
+        when 30..37, 39
           @color_pair[0] = a
-        when 40..48
+        when 40..47, 49
           @color_pair[1] = a
+        when 0
+          attroff_all
+          return true
         else
           @attrs << a
         end
@@ -174,12 +177,12 @@ module ConsoleWindow
 
       def attroff a
         case a
-        when 30..38
+        when 30..37, 39
           curses_attr = Curses::A_COLOR
-          @color_pair[0] = 38
-        when 40..48
+          @color_pair[0] = 39
+        when 40..47, 49
           curses_attr = Curses::A_COLOR
-          @color_pair[1] = 48
+          @color_pair[1] = 49
         else
           curses_attr = ansi_color_to_curses_attr(a) or return
           @attrs.delete(a) or return

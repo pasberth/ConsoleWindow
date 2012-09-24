@@ -23,8 +23,9 @@ module ConsoleWindow
       end
 
       def []= lineno, line
-        raise "todo"
-        ## @text.overwrite(line, 0, lineno)
+        TextDisplay::Text.new(line).each_line.with_index do |line, i|
+          @text.overwrite!(line.map(&:as_string).join + "\n", 0, lineno + i)
+        end
       end
 
       def << line

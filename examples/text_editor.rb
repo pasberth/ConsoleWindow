@@ -65,5 +65,3 @@ screen.components << editor << cmd_line << info_bar
 
 cmd_line.focus! # 最初のエントリポイント
 screen.activate
-
-p screen.text

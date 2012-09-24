@@ -1,4 +1,4 @@
-
+require 'text_display'
 require 'console_window/window'
 
 module ConsoleWindow
@@ -18,11 +18,12 @@ module ConsoleWindow
     # ====================
 
     def displayed_text
-      text = self.text.clone
+      text = TextDisplay::Text.new(self.text.as_string)
       components.each do |comp|
         text.paste!(comp.as_displayed_string, comp.x, comp.y)
       end
-      text.displayed_text
+      self.text = text.as_string(true)
+      self.text.displayed_text
     end
 
     def as_string

@@ -17,7 +17,7 @@ module ConsoleWindow
       end
 
       def pop
-        @window.text.delete_char(@window.position.y)
+        @window.text.delete_char(@window.position.x, @window.position.y)
       end
 
       def delete!

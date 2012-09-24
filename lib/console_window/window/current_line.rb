@@ -12,22 +12,16 @@ module ConsoleWindow
         @window = window
       end
       
-      def method_missing f, *args, &block
-        if [:insert, :delete].include? f
-          window.text[window.position.y].send f, @window.position.x, *args, &block
-        elsif window.text[window.position.y].respond_to? f
-          window.text[window.position.y].send f, *args, &block
-        else
-          super
-        end
-      end
-
       def << char
-        insert(char)
+        @window.text.push_char(char)
       end
 
       def pop
-        delete
+        @window.text.delete_char(@window.position.y)
+      end
+
+      def delete!
+        @window.text.delete_line(@window.position.y)
       end
     end
   end

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 require 'give4each'
 require 'text_display'
 require 'unicode/display_width'
@@ -28,7 +29,12 @@ module ConsoleWindow
         end
       end
 
-      def << line
+      def push_char char
+        @text.insert! char, @window.position.x, @window.position.y
+        @window.position.x += 1 # FIXME: 入力した文字数にする、 \e[1m とかは 0 文字として数える
+      end
+
+      def push_line line
         TextDisplay::Text.new(line).each_line do |line|
           @text.insert!(line.map(&:as_string).join, @window.position.x, @window.position.y)
           @window.position.x = 0
@@ -38,9 +44,14 @@ module ConsoleWindow
         self
       end
 
-      def pop
-        raise  "todo"
-        @text.delete_at @window.position.y
+      alias << push_line
+
+      def delete_char x, y
+        @text.delete_char x, y
+      end
+
+      def delete_line no
+        @text.delete_line no
       end
 
       def displayed_text

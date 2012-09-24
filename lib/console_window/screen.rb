@@ -168,7 +168,7 @@ module ConsoleWindow
       @cursor_y_current = cursor.y
       @cursor_x_current = cursor.x
       @cury_current = cursor.y
-      line = displayed_text.each_line.to_a.fetch(cursor.y, [])[0 .. cursor.x]
+      line = displayed_text.each_line.to_a.fetch(cursor.y, [])[0, cursor.x]
       @curx_current = line.join.display_width
       if line.length < cursor.x
         @curx_current += cursor.x - line.length

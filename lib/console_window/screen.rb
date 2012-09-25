@@ -61,9 +61,9 @@ module ConsoleWindow
       refresh_flag = false
 
       text = displayed_text
-      height.times.zip text do |y, line|
+      height.times.zip(text.each_line) do |y, line|
         line ||= []
-        if @screen_buf[y] != (newline = line.to_a.join)
+        if @screen_buf[y] != (newline = line.map(&:as_string).join)
           @screen_buf[y] = newline
           refresh_flag ||= true
           break
@@ -77,10 +77,10 @@ module ConsoleWindow
 
       if refresh_flag
         curses_window.clear
-        height.times.zip text do |y, line|
+        height.times.zip(text.each_line) do |y, line|
           line ||= []
           curses_window.setpos y, 0
-          curses_io.write(line.to_a.join)
+          curses_io.write(line.map(&:as_string).join)
         end
       end
 
@@ -168,7 +168,7 @@ module ConsoleWindow
       @cursor_y_current = cursor.y
       @cursor_x_current = cursor.x
       @cury_current = cursor.y
-      line = displayed_text[cursor.y][0 .. cursor.x].to_a
+      line = displayed_text.each_line.to_a.fetch(cursor.y, [])[0, cursor.x]
       @curx_current = line.join.display_width
       if line.length < cursor.x
         @curx_current += cursor.x - line.length

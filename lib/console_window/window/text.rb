@@ -1,4 +1,6 @@
+# -*- coding: utf-8 -*-
 require 'give4each'
+require 'text_display'
 require 'unicode/display_width'
 
 module ConsoleWindow
@@ -7,258 +9,69 @@ module ConsoleWindow
 
     class Text
 
-      include Enumerable
-
       attr_accessor :window
 
       def self.new window, text = ''
-        case text
-        when Text then (text.window == window) ? text : super
+        if Text === text and window == text.window
+          text.clone
         else super
         end
       end
 
       def initialize window, text = ''
         @window = window
-        @lines = case text
-                 when String then text.lines.map { |line| Line.new(line) }
-                 when Array then text
-                 when Line then [text]
-                 end
+        @text = TextDisplay::Text.new(text)
       end
 
-      def each
-        if block_given?
-          @lines.each_with_index do |line, i|
-            yield line ? line : @lines[i] = Line.new("\n")
-          end
-        else
-          Enumerator.new(self, :each)
+      def []= lineno, line
+        TextDisplay::Text.new(line).each_line.with_index do |line, i|
+          @text.overwrite!(line.map(&:as_string).join + "\n", 0, lineno + i)
         end
       end
 
-      def count
-        @lines.reverse_each.drop_while(&:empty?).length
+      def push_char char
+        @text.insert! char, @window.position.x, @window.position.y
+        @window.position.x += 1 # FIXME: 入力した文字数にする、 \e[1m とかは 0 文字として数える
       end
 
-      def []= n, text
-        Text.new(@window, text).each_with_index do |line, i|
-          @lines[n + i] = line
-        end
-      end
-
-      def [] n
-        case n
-        when Integer
-          @lines[n] ||= Line.new
-        when Range
-          Text.new(@window, @lines[n.begin .. n.end - 1] || [])
-        else raise TypeError
-        end
-      end
-
-      def << line
-        Text.new(@window, line).each do |line|
-          if (t = self[@window.position.y]).empty?
-            @lines[@window.position.y] = t[0 .. @window.position.x] + line
-          else
-            @lines[@window.position.y] = t[0 .. @window.position.x] + line
-            @lines.insert(@window.position.y + 1, t[@window.position.x .. t.count])
-          end
+      def push_line line
+        TextDisplay::Text.new(line).each_line do |line|
+          @text.insert!(line.map(&:as_string).join, @window.position.x, @window.position.y)
           @window.position.x = 0
           @window.position.down!
         end
+
         self
       end
 
-      def pop
-        @lines.delete_at @window.position.y
+      alias << push_line
+
+      def delete_char x, y
+        @text.delete_char x, y
       end
 
-      def crop start_x, start_y, end_x, end_y
-        Text.new(@window, self[start_y .. end_y].map { |line| line.physical[start_x .. end_x] })
-      end
-
-      def paste! text, x, y
-        Text.new(@window, text).each_with_index do |line, i|
-          self[y + i][x .. line.count + x] = line
-        end
-        nil
-      end
-
-      def paste *args
-        clone.tap &:paste!.with(*args)
+      def delete_line no
+        @text.delete_line no
       end
 
       def displayed_text
         h = @window.height ? (@window.height + @window.scroll.y) : raise("height is nil. #{@window.inspect}")
         w = @window.width ? (@window.width + @window.scroll.x) : raise("width is nil. #{@window.inspect}")
-        crop(@window.scroll.x, @window.scroll.y, w, h)
+        @text.crop(@window.scroll.x, @window.scroll.y, w, h)
       end
 
       def as_string
-        map(&:as_string).join
+        @text.as_string(true)
       end
 
       def as_displayed_string
-        displayed_text.as_string
+        displayed_text.as_string(true)
       end
 
       def clone
-        super.instance_exec(@lines.map(&:clone)) do |lines|
-          @lines = lines
+        super.instance_exec(@text.clone) do |txt|
+          @text = txt
           self
-        end
-      end
-    end
-
-    class Text
-
-      class Line
-
-        include Enumerable
-
-        def self.new line = nil
-          case line
-          when Line then line
-          else super
-          end
-        end
-        
-        def self.parse line
-          line = line.chomp
-          line.split_escaped_chars
-        end
-
-        def initialize line = nil
-          @null_line = [nil, ''].include? line
-          @line = case line
-                  when nil, '' then []
-                  when Array then line.last == "\n" ? line[0..-2] : line.clone
-                  when String then Line.parse(line)
-                  else raise TypeError, "Can't convert #{line.class} into Array"
-                  end
-        end
-
-        def physical
-          @physical ||= PhysicalLine.new(self)
-        end
-
-        def each
-          return Enumerator.new(self, :each) unless block_given?
-
-          @line.each do |char|
-            yield char ? char : ' '
-          end
-        end
-
-        def count
-          @line.reject { |a| a =~ /^\e/ }.length
-        end
-
-        def collect_char
-          return Enumerator.new(self, :collect_char) unless block_given?
-
-          @line.flat_map do |char|
-            if char.nil?
-              yield ' '
-            elsif char[0] == "\e"
-              char
-            else
-              yield char
-            end
-          end.compact
-        end
-        
-        def + line
-          Line.new(to_a + Line.new(line).to_a)
-        end
-
-        def [] val
-          case val
-          when Range
-            if val.end == 0
-              Line.new("\n")
-            else
-              Line.new @line[val.begin .. val.end - 1]
-            end
-          when Integer
-            @line[val]
-          else
-            raise NotImplementedError
-          end
-        end
-        
-        def []= *args
-          val = Line.new(args.pop)
-
-          case args.length
-          when 1
-            case args[0]
-            when Integer
-              @line[args[0] .. val.count] = val.to_a
-            when Range
-              @line[args[0].begin .. args[0].end - 1] = val.to_a
-            else
-              raise NotImplementedError
-            end
-          else
-            raise NotImplementedError
-          end
-        end
-
-        def insert x, char
-          @line.insert x, char
-        end
-
-        def delete x
-          @line.delete_at x
-        end
-
-        def empty?
-          @null_line && @line.empty?
-        end
-        
-        def as_string
-          empty? ? '' : each.to_a.join + "\n"
-        end
-
-        def == obj
-          case obj
-          when String then as_string == obj
-          else super
-          end
-        end
-
-        def clone
-          super.instance_exec(@line.clone) do |line|
-            @line = line
-            self
-          end
-        end
-      end
-
-      class PhysicalLine
-
-        def initialize line
-          @line = line
-        end
-
-        def [] n
-          case n
-          when Range
-            w = 0
-            Line.new(@line.collect_char do |c|
-              w += c.display_width
-              if w <= n.begin
-                nil
-              elsif w <= n.end
-                c
-              else
-                nil
-              end
-            end)
-          end
         end
       end
     end

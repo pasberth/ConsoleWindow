@@ -22,8 +22,7 @@ module ConsoleWindow
       components.each do |comp|
         text.paste!(comp.as_displayed_string, comp.x, comp.y)
       end
-      self.text = text
-      self.text.displayed_text
+      Window::Text.new(self, text).displayed_text
     end
 
     def as_string

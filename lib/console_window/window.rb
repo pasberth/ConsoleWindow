@@ -137,7 +137,7 @@ module ConsoleWindow
     end
 
     def as_displayed_string
-      text.as_displayed_string.chomp
+      text.displayed_text.as_string.chomp
     end
 
     # ====================

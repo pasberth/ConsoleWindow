@@ -50,8 +50,8 @@ module ConsoleWindow
       }
     end
 
-    attr_accessor :out
     attr_accessor :in
+    attr_accessor :out
     attr_accessor :text
     attr_accessor :current_line
 

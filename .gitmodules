@@ -1,0 +1,3 @@
+[submodule "TextDisplay"]
+	path = TextDisplay
+	url = git@github.com:pasberth/TextDisplay.git

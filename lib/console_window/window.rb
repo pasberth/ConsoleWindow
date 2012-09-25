@@ -5,6 +5,8 @@ module ConsoleWindow
 
   class Window
 
+    require 'console_window/window/in'
+    require 'console_window/window/out'
     require 'console_window/window/text'
     require 'console_window/window/current_line'
     require 'console_window/window/location'
@@ -29,6 +31,8 @@ module ConsoleWindow
 
     def default_attributes
       {
+        in:             In.new(self),
+        out:            Out.new(self),
         text:           Text.new(self, []),
         current_line:   CurrentLine.new(self),
         location:       Location.new(self, 0, 0),
@@ -46,6 +50,8 @@ module ConsoleWindow
       }
     end
 
+    attr_accessor :out
+    attr_accessor :in
     attr_accessor :text
     attr_accessor :current_line
 

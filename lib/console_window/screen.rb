@@ -62,34 +62,26 @@ module ConsoleWindow
 
       text = displayed_text
       height.times.zip(text.each_line) do |y, line|
-        line ||= []
-        if @screen_buf[y] != (newline = line.map(&:as_string).join)
-          @screen_buf[y] = newline
-          refresh_flag ||= true
-          break
-        end
+        next unless line
+        newline = line.map(&:as_string).join
+        next if @screen_buf[y] == newline
+
+        @screen_buf[y] = newline
+        curses_window.setpos y, 0
+        curses_io.write newline
+        refresh_flag = true
       end
 
       if @gets_buf != curses_io.gets_buf
+        curses_window.setpos cursor.y, 0
+        curses_io.write @screen_buf[cursor.y]
         refresh_flag = true
         @gets_buf = curses_io.gets_buf.clone
       end
 
-      if refresh_flag
-        curses_window.clear
-        height.times.zip(text.each_line) do |y, line|
-          line ||= []
-          curses_window.setpos y, 0
-          curses_io.write(line.map(&:as_string).join)
-        end
-      end
-
       focus_cursor!
       curses_window.addstr(curses_io.gets_buf.join) # echo. TODO: gets_buf のもっと良い名前
-
-      if refresh_flag
-        curses_window.refresh
-      end
+      curses_window.refresh if refresh_flag
       true
     end
 

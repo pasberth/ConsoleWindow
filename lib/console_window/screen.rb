@@ -25,7 +25,7 @@ module ConsoleWindow
                      owner: nil,  # Screen は常に最上位のウィンドウなので不要。 nil である前提
                      width: nil,  # width, height は Curses.stdscr によって決定される
                      height: nil, # 
-                     active_components: ActiveComponents.new(self, []),
+                     active_components: ActiveComponents.new(self),
                      curses: Curses
                    })
     end
@@ -93,7 +93,8 @@ module ConsoleWindow
       true
     end
 
-    def activate
+    def start!
+
       ENV["ESCDELAY"] ||= "0"
 
       @curses.init_screen
@@ -107,44 +108,24 @@ module ConsoleWindow
       @curses_io = CursesIO.new(curses_window)
       @curses_io.init_color(@curses)
 
-      before_id = nil
-      before_group = nil
+      return unless block_given?
 
       begin
+        yield
+      ensure
+        finish!
+      end
+    end
+
+    def finish!
+      @curses.close_screen
+    end
+
+    def loop!
+      while true
         begin_time = Time.now
-
-        group  = @active_components.frame_group
-        id     = @active_components.frame_id
-        args   = @active_components.frame_args
-        block  = @active_components.frame_block
-
-        # フォーカスが移動した瞬間の処理
-        # 処理順:
-        # in frame(A) -> before_hooks(A) -> frame(A)-loop -> break frame(A)
-        # -> in frame(B) -> after_hooks(A) -> frame(B)-loop -> break frame(B)
-        # -> ...
-        # before や after 内でフォーカスを変えたら、
-        # frame-loop は一度もしないが before と after は必ず呼ばれる
-
-        if group != before_group or id != before_id
-          before_group.after_hooks(before_id).each &:call if before_group
-          group.before_hooks(id).each &:call  if group
-          before_group = group
-          before_id = id
-          next # before や after 内でフォーカスが変えられた場合、frame(id) は呼ばれない
-        end
-
-        break unless group
-
-        raise "tried to focus the frame '#{id}' not defined." unless group.frame(id)
-
-        group.frame(id).call(*args, &block)
-
-        # TODO: deep calling
-        components.each { |comp| comp.frames.backgrounds.each { |frame, opts| frame.call } }
-
+        @active_components.call_frame or break
         paint
-
         end_time = Time.now
 
         # ちょうど0.02秒待機する
@@ -152,10 +133,17 @@ module ConsoleWindow
         if 0 < (s = 0.01 - (end_time - begin_time))
           sleep(s)
         end
-      end while group
+      end
+    end
 
-    ensure
-      @curses.close_screen
+    def activate &main
+      if block_given?
+        frames.on :main, &main
+        frames.focus! :main
+      end
+      start! do
+        loop!
+      end
     end
 
     def focus_cursor!

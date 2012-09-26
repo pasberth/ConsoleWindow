@@ -6,61 +6,91 @@ module ConsoleWindow
 
     class ActiveComponents
 
+      Frame = Struct.new :group, :id, :args, :block
       attr_accessor :screen
-      attr_accessor :list
+      attr_reader :result
 
-      def initialize screen, list = []
+      def initialize screen
         @screen = screen
-        @list = list
+        @frame = nil
+        @list = []
+        @focused_list = []
+        @unfocused_list = []
         @result = {}
       end
 
-      attr_reader :result
-
-      def frame_group
-        @list.last ? @list.last[0] : nil
+      def focused?
+        ! @focused_list.empty?
       end
 
-      def frame_id
-        @list.last ? @list.last[1] : nil
+      def unfocused?
+        ! @unfocused_list.empty?
       end
 
-      def frame_args
-        @list.last ? @list.last[2] : nil
-      end
-
-      def frame_block
-        @list.last ? @list.last[3] : nil
+      def does_nothing?
+        @list.empty?
       end
 
       def focus group, id, *args, &block
-        @list << [group, id, args, block]
-        focus!
+        @list << Frame.new(group, id, args, block)
+        @focused_list << @list.last
         true
       end
 
       def unfocus group, id, result = { return_value: nil }
-        return false if self.frame_group != group
         # group(a):main
         # group(a):command
         # group(a):foo .. のようなフォーカスで unfocus(a, :main) なら :main までアンフォーカスする
+        i = -1
+        i-= 1 while @list[i] and
+          @list[i].group == group and
+          @list[i].id != id
 
-        # TODO: この実装だと after が呼ばれない。
-        while self.frame_id != id
-          @list.pop
+        raise "tried to unfocus the frame '#{id}' that be not focused." unless @list[i] and @list[i].group == group and @list[i].id == id
+
+        i.abs.times do
+          @unfocused_list << @list.pop
         end
-        @list.pop
-        focus!
+
         @result = result
         true
+      end
+
+      def call_frame
+        if focused?
+          @frame = @focused_list.shift
+          call_before_hooks
+          return true
+        end
+
+        if unfocused?
+          @frame = @unfocused_list.shift
+          call_after_hooks
+          return true
+        end
+
+        return false if does_nothing?
+        raise "tried to focus the frame '#{id}' not defined." unless @frame.group.frame(@frame.id)
+
+        @frame.group.frame(@frame.id).call(*@frame.args, &@frame.block)
+
+        true
+      end
+
+      def call_before_hooks
+        @frame.group.before_hooks(@frame.id).each &:call
+      end
+
+      def call_after_hooks
+        @frame.group.after_hooks(@frame.id).each &:call
       end
 
       private
 
         def focus!
-          return if @list.empty?
-          @screen.cursor.x = frame_group.window.cursor.absolute_x
-          @screen.cursor.y = frame_group.window.cursor.absolute_y
+          return if @focused_list.empty?
+          @screen.cursor.x = @frame.group.window.cursor.absolute_x
+          @screen.cursor.y = @frame.group.window.cursor.absolute_y
         end
     end
   end

@@ -2,6 +2,7 @@
 require 'curses'
 require 'unicode/display_width'
 require 'console_window/container'
+require 'console_window/text_editor'
 require 'console_window/curses_io'
 
 module ConsoleWindow
@@ -16,7 +17,8 @@ module ConsoleWindow
       # @curses_window = Curses.stdscr
       # @curses_io = CursesIO.new(curses_window)
       @screen_buf = []
-      @gets_buf = []
+      @gets_window = create_sub(TextEditor, width, 1, 0, 0)
+      components << @gets_window
     end
 
     def default_attributes
@@ -65,23 +67,17 @@ module ConsoleWindow
         next unless line
         newline = line.map(&:as_string).join
         next if @screen_buf[y] == newline
-
         @screen_buf[y] = newline
+        curses_window.setpos y, 0
+        curses_io.write ' ' * width
         curses_window.setpos y, 0
         curses_io.write newline
         refresh_flag = true
       end
 
-      if @gets_buf != curses_io.gets_buf
-        curses_window.setpos cursor.y, 0
-        curses_io.write @screen_buf[cursor.y]
-        refresh_flag = true
-        @gets_buf = curses_io.gets_buf.clone
+      if refresh_flag
+        curses_window.refresh
       end
-
-      focus_cursor!
-      curses_window.addstr(curses_io.gets_buf.join) # echo. TODO: gets_buf のもっと良い名前
-      curses_window.refresh if refresh_flag
       true
     end
 
@@ -136,6 +132,7 @@ module ConsoleWindow
         components.each { |comp| comp.frames.backgrounds.each { |frame, opts| frame.call } }
 
         paint
+        focus_cursor!
 
         end_time = Time.now
 
@@ -184,11 +181,12 @@ module ConsoleWindow
     end
 
     def gets sep = $/
-      begin
-        str = curses_io.gets(sep) or Fiber.yield
-      end until str
-
-      str
+      @gets_window.text = ''
+      @gets_window.cursor = [0, 0]
+      @gets_window.position = [0, 0]
+      @gets_window.location = [cursor.x, cursor.y]
+      @gets_window.focus!(:main, sep)
+      @gets_window.as_string
     end
   end
 end

@@ -8,7 +8,7 @@ module ConsoleWindow
     def initialize *args, &block
       super
 
-      frames.on :main do
+      frames.on :main do |sep=27.chr| # ESC
         position.x = logical_cursor.x
         position.y = logical_cursor.y
 
@@ -26,7 +26,7 @@ module ConsoleWindow
               cursor.x = current_line.count - scroll.x
             end
           end
-        when 27.chr  # ESC
+        when sep
           unfocus!
         when Curses::Key::BACKSPACE, 127.chr # DEL
           if cursor.left! or scroll.left!

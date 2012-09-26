@@ -9,7 +9,9 @@ display_window = screen.create_sub_window(40, 1, 0, 1)
 screen.components << input_window
 screen.components << display_window
 
-input_window.text << "will echo. input plz: "
+msg = "will echo. input plz: "
+input_window.text << msg
+input_window.cursor.x = msg.length
 
 input_window.frames.on :main do
   case s = input_window.gets

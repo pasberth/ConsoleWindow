@@ -39,6 +39,14 @@ module ConsoleWindow
         end
       end
 
+      def override frame_id, &block
+        if not @frame_procs[frame_id.to_sym]
+          raise(ArgumentError, "The frame id #{@window.class}->#{frame_id} does not exist.")
+        else
+          @frame_procs[frame_id.to_sym] = OverrideFrame.new(@frame_procs[frame_id.to_sym], &block)
+        end
+      end
+
       def before frame_id, &block
         before_hooks(frame_id) << block
         true
@@ -100,6 +108,10 @@ module ConsoleWindow
         @context = Fiber.new(&block)
         @first = true
       end
+
+      def first?
+        @first
+      end
       
       def call *args, &block
         if @first 
@@ -110,8 +122,36 @@ module ConsoleWindow
             @context.resume
           rescue FiberError
             initialize &@original_block
+            true
           end
         end
+      end
+    end
+
+
+    class Frames::InnerFrame < Frames::Frame
+
+      def call *args, &block
+        ret = super(*args, &block)
+        return ret if first?
+
+        begin
+          Fiber.yield(ret)
+        rescue FiberError
+          ret
+        end
+      end
+    end
+
+    class Frames::OverrideFrame < Frames::Frame
+
+      def initialize original_frame = @original_frame, &block
+        super(&block)
+        @original_frame = Frames::InnerFrame.new(&original_frame.instance_variable_get(:@original_block))
+      end
+
+      def call *args, &block
+        super(@original_frame, *args, &block)
       end
     end
   end

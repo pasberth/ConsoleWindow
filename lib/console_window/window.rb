@@ -138,6 +138,10 @@ module ConsoleWindow
       owner.screen
     end
 
+    def displayed_text
+      text.displayed_text
+    end
+
     def as_string
       text.as_string.chomp
     end

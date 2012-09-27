@@ -18,9 +18,9 @@ module ConsoleWindow
     # ====================
 
     def displayed_text
-      text = TextDisplay::Text.new(self.text.as_string)
+      text = self.text.instance_variable_get(:@text).clone
       components.each do |comp|
-        text.paste!(comp.as_displayed_string, comp.x, comp.y)
+        text.paste!(comp.displayed_text, comp.x, comp.y)
       end
       Window::Text.new(self, text).displayed_text
     end

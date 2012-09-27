@@ -29,6 +29,20 @@ module ConsoleWindow
         end
       end
 
+      # FIXME: \e[5D とかの実装,
+      def write str
+        @text.overwrite! str, @window.position.x, @window.position.y
+        lines = TextDisplay::Text.new(str).each_line.to_a
+        @window.position.y += lines[0..2].length - 1
+        if lines.length == 1
+          @window.position.x += lines.last.length
+        else
+          @window.position.x = lines.last.length
+        end
+
+        str.bytes.count
+      end
+
       def push_char char
         @text.insert! char, @window.position.x, @window.position.y
         @window.position.x += 1 # FIXME: 入力した文字数にする、 \e[1m とかは 0 文字として数える

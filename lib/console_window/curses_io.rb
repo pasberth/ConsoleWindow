@@ -25,7 +25,7 @@ module ConsoleWindow
         when /^\e\[(?<A>\d*)(?<COL>;\d+\g<COL>?)?m/
           a, col = $1.to_i, $2
           attron(a)
-          col and col.split(';').map(&:to_i).each { |a| attron(a) }
+          col and col.split(';')[1..-1].each { |a| attron(a.to_i) }
         else
           @curses_window.addstr c
         end
@@ -149,7 +149,7 @@ module ConsoleWindow
       def color_pair_id fg, bg
         fg = fg - 30
         bg = bg - 40
-        fg + bg*9
+        fg + bg*10
       end
 
       def current_color_pair_id

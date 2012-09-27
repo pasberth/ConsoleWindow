@@ -69,6 +69,7 @@ module ConsoleWindow
           return true
         end
 
+        @frame = @list.last
         return false if does_nothing?
         raise "tried to focus the frame '#{id}' not defined." unless @frame.group.frame(@frame.id)
 

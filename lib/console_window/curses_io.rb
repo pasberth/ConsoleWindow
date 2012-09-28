@@ -5,6 +5,7 @@ module ConsoleWindow
   class CursesIO
 
     include Curses::Key
+    include TextDisplay::Helpers
 
     attr_reader :gets_buf # TODO: 
 
@@ -18,14 +19,11 @@ module ConsoleWindow
     end
 
     def write text
-      text.each_escaped_char do |c|
-        case c
-        when "\e[m", "\e[0m"
-          attroff_all
-        when /^\e\[(?<A>\d*)(?<COL>;\d+\g<COL>?)?m/
-          a, col = $1.to_i, $2
-          attron(a)
-          col and col.split(';')[1..-1].each { |a| attron(a.to_i) }
+      split_escaped_chars(text).each do |c|
+        if c[0] == "\e"
+          split_escape_sequence(c).each do |a|
+            attron(a.to_i)
+          end
         else
           @curses_window.addstr c
         end

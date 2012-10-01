@@ -14,7 +14,7 @@ module ConsoleWindow
     end
 
     def max_x
-      window.text[window.logical_cursor.y].count + window.width - 1
+      window.text.count_at(window.logical_cursor.y) + window.width - 1
     end
 
     def max_y

@@ -46,7 +46,7 @@ module ConsoleWindow
             end
           end
         when "\n"
-          text << "\n"
+          text << ""
           cursor.x = 0
           scroll.x = 0
           cursor.down! or scroll.down!

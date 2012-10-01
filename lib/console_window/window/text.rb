@@ -25,7 +25,7 @@ module ConsoleWindow
 
       def []= lineno, line
         TextDisplay::Text.new(line).each_line.with_index do |line, i|
-          @text.overwrite!([line + [TextDisplay::DecoratedString::EMPTY]], 0, lineno + i)
+          @text.overwrite!([line, [TextDisplay::DecoratedString::EMPTY]], 0, lineno + i)
         end
       end
 
@@ -50,7 +50,7 @@ module ConsoleWindow
 
       def push_line line
         TextDisplay::Text.new(line).each_line do |line|
-          @text.insert!([line], @window.position.x, @window.position.y)
+          @text.insert!([line, [TextDisplay::DecoratedString::EMPTY]], @window.position.x, @window.position.y)
           @window.position.x = 0
           @window.position.down!
         end

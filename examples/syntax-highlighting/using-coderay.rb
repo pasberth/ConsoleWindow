@@ -13,11 +13,10 @@ Run the following command, and try running this program again:
 end
 
 if ARGV.empty?
-  puts "Usage: #{$0} <path>"
-  exit
+  filename = __FILE__
+else
+  filename = ARGV[0]
 end
-
-filename = ARGV[0]
 
 screen = ConsoleWindow::Screen.new
 screen.text = CodeRay.scan_file(filename).term

@@ -5,11 +5,10 @@ require 'console_window'
 require 'console_window/text_editor'
 
 if ARGV.empty?
-  puts "Usage: #{$0} <path>"
-  exit
+  filename = __FILE__
+else
+  filename = ARGV[0]
 end
-
-filename = ARGV[0]
 
 include ConsoleWindow
 

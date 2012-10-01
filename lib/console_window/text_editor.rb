@@ -20,7 +20,7 @@ module ConsoleWindow
         when Curses::Key::LEFT then cursor.left! or scroll.left! and position.left!
         when Curses::Key::UP then cursor.up! or scroll.up! and position.up!
         when Curses::Key::DOWN
-          if logical_cursor.y + 1 < text.count
+          if logical_cursor.y + 1 < text.count_lines
             cursor.down! or scroll.down! and position.down!
             if current_line.count <= logical_cursor.x
               cursor.x = current_line.count - scroll.x

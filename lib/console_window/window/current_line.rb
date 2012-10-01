@@ -23,6 +23,10 @@ module ConsoleWindow
       def delete!
         @window.text.delete_line(@window.position.y)
       end
+
+      def count
+        @window.text.count_at(@window.position.y)
+      end
     end
   end
 end

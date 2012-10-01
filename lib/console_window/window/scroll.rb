@@ -18,7 +18,7 @@ module ConsoleWindow
     end
 
     def max_y
-      window.text.count + window.height - 1
+      window.text.count_lines + window.height - 1
     end
   end
 end

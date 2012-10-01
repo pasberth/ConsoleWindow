@@ -68,6 +68,16 @@ module ConsoleWindow
         @text.delete_line no
       end
 
+      def count_at lineno
+        # TODO: each_line.to_a とかしたくない
+        # TextDisplay のほうでなにかいい API かんがえる
+        @text.each_line.to_a[lineno].length
+      end
+
+      def count_lines
+        @text.each_line.to_a.length
+      end
+
       def displayed_text
         h = @window.height ? (@window.height + @window.scroll.y) : raise("height is nil. #{@window.inspect}")
         w = @window.width ? (@window.width + @window.scroll.x) : raise("width is nil. #{@window.inspect}")

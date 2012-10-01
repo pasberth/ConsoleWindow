@@ -191,7 +191,7 @@ module ConsoleWindow
       end
 
       def attroff_all
-        @attrs.each { |a| attroff(a) }
+        @attrs.dup.each { |a| attroff(a) }
         @color_pair.each { |a| attroff(a) }
         true
       end
